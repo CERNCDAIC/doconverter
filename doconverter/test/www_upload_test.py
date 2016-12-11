@@ -13,29 +13,31 @@ import requests
 import argparse
 import random
 import time
-import sys
 import os
 import re
 import shutil
+import configparser
+from itertools import repeat
+from doconverter.DoconverterException import DoconverterException
+
 
 
 url = None
 url_response = None
 files = []
-diresponse = None
-
+dir_response = None
 
 def give_me_a_number(high_value):
     '''It provides a random number between [0,high_value]
 
     :return: an int that should be between limits of the of possible files
     '''
+    print('fileSSSSSSSs %s', files )
     if not files:
         return 0
     a = random.randint(0, high_value)
     print(a)
     return a
-
 
 def format_conversion(extension=None):
     '''Out of a predefined set e.g. pdf, pdfa, ps
@@ -48,8 +50,7 @@ def format_conversion(extension=None):
         available.remove('ps')
     return random.choice(available)
 
-
-def send_by_web(filename):
+def send_by_web(filename, dict):
     '''Send file to a certain URL
 
     :param filename: file to be sent for conversion
@@ -58,24 +59,24 @@ def send_by_web(filename):
 
     print('working with file %s ' % filename)
     m = re.match(r'.*\.(\w+)', filename)
-    extension = None
+    extension=None
     if m.groups():
         extension = m.group(1)
     fin = open(filename, 'rb')
-    files = {'uploadedfile': fin}
+    file = {'uploadedfile': fin}
     payload = {
         'converter': format_conversion(extension),
-        'diresponse': r'XXXXXXXXXXXXXXXXX',
-        'urlresponse': url_response,
+        'diresponse': dict['diresponse'],
+        'urlresponse': dict['url_response']
     }
     try:
-        r = requests.post(url, files=files, data=payload, verify=False)
+        r = requests.post(dict['url'], files=file, data=payload, verify=False)
         print(r.text)
-    except:
-        print("Unexpected error:", sys.exc_info()[0])
+    except Exception as ex:
+        print("Unexpected error: %s", ex)
     finally:
-        os.unlink(filename)
         fin.close()
+        os.unlink(filename)
 
 
 def build_array_processes(iterations, POOLSIZE):
@@ -87,15 +88,19 @@ def build_array_processes(iterations, POOLSIZE):
     '''
     print('Poolsize: {}, totalnum: {}'.format(POOLSIZE, iterations))
     digest_pool = multiprocessing.Pool(POOLSIZE)
-    allfiles = build_array_files(iterations, len(files) - 1)
+    allfiles = build_array_files(iterations,len(files) - 1)
 
     print('length allfiles %s: ' % len(allfiles))
     print('POOLSIZE %s: ' % POOLSIZE)
     print('Pool chunksize is %s: ' % round(len(allfiles)/POOLSIZE))
-    digest_pool.imap_unordered(send_by_web, allfiles)
+    dict = {
+        'url': url,
+        'diresponse': dir_response,
+        'url_response': url_response
+    }
+    digest_pool.starmap(send_by_web, zip(allfiles, repeat(dict)))
     digest_pool.close()
     digest_pool.join()
-
 
 def format_filename(file, number):
     '''
@@ -110,27 +115,61 @@ def format_filename(file, number):
         sequence = '{num:05d}'.format(num=number)
         new_filename = 'file{0}.{1}'.format(sequence, matched.group(2))
         print('filename is: %s' % new_filename)
-        shutil.copyfile(file, os.path.join(path, new_filename))
-        return os.path.join(path, new_filename)
+        shutil.copyfile(file, os.path.join(path,new_filename))
+        return os.path.join(path,new_filename)
     return None
 
-
-def build_array_files(iteractions, nr_files):
+def build_array_files(iteractions,nr_files):
     '''
 
     :param iterations: final array should have that quantity of files
     :return: array of files out of 'files' internal array
     '''
     arr = []
-    for x in range(0, iteractions):
+    for x in range(0,iteractions):
         file = files[give_me_a_number(nr_files)]
-        newfile = format_filename(file, x)
+        newfile = format_filename(file,x)
         print('newfile is %s' % newfile)
         if newfile and os.path.exists(newfile):
             arr.append(newfile)
     print(arr)
     return arr
 
+def init_config():
+    ''' Initialise global variables e.g. url, url_response,...
+
+    :return:
+    '''
+    CONFIG = configparser.ConfigParser()
+    CONFIG.read("\\\\cern.ch\\dfs\\Services\\conversion\\production-test02\\doconverterwww\\project\\doconverter\\doconverter.ini")
+
+    if CONFIG.has_section("test"):
+        if CONFIG.has_option("test", "diresponse"):
+            global dir_response
+            dir_response = CONFIG.get("test", "diresponse")
+            print('dir_response {}'.format(dir_response))
+        else:
+            raise DoconverterException("Missing option: {}".format('diresponse'))
+        if CONFIG.has_option("test", "url"):
+            global url
+            url = CONFIG.get("test", "url")
+            print('url {}'.format(url))
+        else:
+            raise DoconverterException("Missing option: {}".format('url'))
+        if CONFIG.has_option("test", "url_response"):
+            global url_response
+            url_response = CONFIG.get("test", "url_response")
+            print('url_response {}'.format(url_response))
+        else:
+            raise DoconverterException("Missing option: {}".format('url_response'))
+        if CONFIG.has_option("test", "files"):
+            global files
+            files = CONFIG.get("test", "files").replace('\n','',1).split(',')
+            print('files {}'.format(files))
+        else:
+            raise DoconverterException("Missing option: {}".format('files'))
+    else:
+        raise DoconverterException("Missing test options")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Testing upload of file using multiprocesses')
@@ -142,10 +181,11 @@ if __name__ == '__main__':
 
     results = parser.parse_args()
     print(parser.parse_args())
+    init_config()
     iterations = results.iterations
     POOLSIZE = results.POOLSIZE
     if results.dest_url:
-        url = results.dest_url
+        url=results.dest_url
     start = time.time()
     build_array_processes(iterations, POOLSIZE)
     print('{} run lasted (in seconds)'.format(time.time() - start))

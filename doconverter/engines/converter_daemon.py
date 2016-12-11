@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     if results.sendtaskid:
         logger.debug('retrieving task: {}'.format(results.sendtaskid))
-        task = Task.getaskbyid(results.sendtaskid, dir=APPCONFIG['error'])
+        task = Task.getaskbyid(results.sendtaskid, dir=APPCONFIG['success'])
         if task and task.convertedfile_exists():
             logger.debug('sending task: {}'.format(results.sendtaskid))
             task.sendbyweb(task.convertedfile_exists(), 0)

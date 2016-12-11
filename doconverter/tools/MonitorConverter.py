@@ -103,7 +103,7 @@ class MonitorConverter:
                         file_date = date.fromtimestamp(os.path.getmtime(os.path.join(parent, folder, dir, file)))
                         print(os.path.join(parent, folder, dir, file))
                         print(file_date)
-                        if (now - file_date).days < days:
+                        if (now - file_date).days >= days:
                             try:
                                 yeartobemovedto = None
                                 if file_date.year == now.year:
@@ -128,7 +128,7 @@ class MonitorConverter:
                     file_date = date.fromtimestamp(os.path.getmtime(os.path.join(parent, folder, file)))
                     print(os.path.join(parent, folder, file))
                     print(file_date)
-                    if (now - file_date).days < days:
+                    if (now - file_date).days >= days:
                         try:
                             yeartobemovedto = None
                             if file_date.year == now.year:

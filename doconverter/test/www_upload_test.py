@@ -26,14 +26,13 @@ url = None
 url_response = None
 files = []
 dir_response = None
-ini_file = r'\\cern.ch\dfs\Services\conversion\production-test02\doconverterwww\project\doconverter\doconverter.ini'
+ini_file = r'c:\doconverter\config\doconverter.ini'
 
 def give_me_a_number(high_value):
     '''It provides a random number between [0,high_value]
 
     :return: an int that should be between limits of the of possible files
     '''
-    print('fileSSSSSSSs %s', files )
     if not files:
         return 0
     a = random.randint(0, high_value)

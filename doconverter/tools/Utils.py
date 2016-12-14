@@ -13,6 +13,7 @@ import random
 import logging
 import psutil
 import smtplib
+import platform
 from email.mime.text import MIMEText
 from logging.handlers import QueueHandler
 from doconverter.config import APPCONFIG
@@ -46,6 +47,15 @@ class Utils(object):
             taskid = random.randint(0, 999999999)
         Utils.logger.info("new taskid generated %s" % taskid)
         return taskid
+
+    @staticmethod
+    def getserver():
+        '''Returns actual server where the script is running, with no domain
+
+        :return:
+        '''
+        server = platform.node()
+        return server.split('.')[0]
 
     @staticmethod
     def allowed_filextension(extension, list_extensions):

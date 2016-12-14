@@ -19,7 +19,7 @@ from doconverter.DoconverterException import DoconverterException
 CONFIG = None
 APPCONFIG= {}
 
-with open("\\\\cern.ch\\dfs\\Services\\conversion\\production-test02\\doconverterwww\\project\\doconverter\\logging.conf") as jdata:
+with open("c:\doconverter\config\logging.conf") as jdata:
     config_logging = json.load(jdata)
 
 logging.config.dictConfig(config_logging)
@@ -30,7 +30,7 @@ logger.debug("logger has been initialised")
 try:
     # Load configuration from file
     CONFIG = configparser.ConfigParser()
-    CONFIG.read("\\\\cern.ch\\dfs\\Services\\conversion\\production-test02\\doconverterwww\\project\\doconverter\\doconverter.ini")
+    CONFIG.read("c:\doconverter\config\doconverter.ini")
     # Get usual values
     if CONFIG.has_section("default"):
         if CONFIG.has_option("default","prefix_dir"):

@@ -28,6 +28,10 @@ class Neevia(object):
         self.error_dir = os.path.join(APPCONFIG['error'], self.task.taskid)
         self.success_dir = os.path.join(APPCONFIG['uploadsresults'], self.task.taskid)
 
+    @classmethod
+    def get_classname(cls):
+        return cls.__name__
+
     def __create_dirs_for_task(self):
         if not os.path.exists(self.success_dir):
             os.makedirs(self.success_dir, exist_ok=True)

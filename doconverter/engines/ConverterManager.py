@@ -17,7 +17,7 @@ from doconverter.tools.Task import Task
 from doconverter.config import APPCONFIG
 from doconverter.DoconverterException import DoconverterException
 from doconverter.tools.Utils import Utils
-
+from doconverter.engines.Neevia import Neevia  # noqa
 
 class ConverterManager(multiprocessing.Process):
     logger = None

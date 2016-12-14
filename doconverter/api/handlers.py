@@ -13,16 +13,22 @@ from flask_restful import Api
 from doconverter.api.UploadFile import UploadFile
 from doconverter.api.ReceivedFile import ReceivedFile
 from doconverter.api.MonitorWWW import MonitorWWW
-# from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
+#from doconverter.models import Result
+#from doconverter.models import Task
 
 app = Flask(__name__)
 app.debug = True
-
-# db = SQLAlchemy(app)
-api = Api(app)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://doconverter:toto@conv-test02.cern.ch:5432/doconverter'
 # limit the maximum size of files to be upload to 16 MB
 app.config['MAX_CONTENT_LENGTH'] = 400 * 1024 * 1024
 
+db = SQLAlchemy(app)
+api = Api(app)
+
+#db.drop_all()
+#db.create_all()
 
 @app.route('/')
 def index():

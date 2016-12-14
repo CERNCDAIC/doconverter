@@ -14,7 +14,7 @@ Storage REST API server setup file
 
 from setuptools import setup, find_packages
 
-setup(name='storage.api',
+setup(name='doconverter',
       version='0.1.0',
       description='Doc Conversion REST API',
       author='CERN',

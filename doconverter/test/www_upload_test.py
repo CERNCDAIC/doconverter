@@ -46,8 +46,10 @@ def format_conversion(extension=None):
     :return: one of the predefined types
     '''
     available = ['pdf', 'pdfa', 'ps']
-    if extension in ['html']:
+    if extension in ['html', 'png', 'jpg']:
         available.remove('ps')
+    if extension in ['png', 'jpg']:
+        available.remove('pdfa')
     return random.choice(available)
 
 def send_by_web(filename, dict):

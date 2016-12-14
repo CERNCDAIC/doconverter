@@ -1,4 +1,4 @@
-#!c:\Python34\python.exe
+##!c:\Python34\python.exe
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016, CERN
@@ -26,6 +26,7 @@ url = None
 url_response = None
 files = []
 dir_response = None
+ini_file = r'\\cern.ch\dfs\Services\conversion\production-test02\doconverterwww\project\doconverter\doconverter.ini'
 
 def give_me_a_number(high_value):
     '''It provides a random number between [0,high_value]
@@ -143,7 +144,7 @@ def init_config():
     :return:
     '''
     CONFIG = configparser.ConfigParser()
-    CONFIG.read("\\\\cern.ch\\dfs\\Services\\conversion\\production-test02\\doconverterwww\\project\\doconverter\\doconverter.ini")
+    CONFIG.read(ini_file)
 
     if CONFIG.has_section("test"):
         if CONFIG.has_option("test", "diresponse"):

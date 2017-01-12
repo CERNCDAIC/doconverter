@@ -4,4 +4,4 @@ flask-restful
 psutil
 Flask-SQLAlchemy
 psycopg2
-pypiwin32
+

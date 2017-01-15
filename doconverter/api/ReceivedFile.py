@@ -51,7 +51,7 @@ class ReceivedFile(Resource):
                     file.save(os.path.join(args.directory, filename))
                 else:
                     ReceivedFile.logger.debug('No file {} contents!'.format(filename))
-                    return {'post': 'file was missing'}, 200
+                    return {'post': 'file was missing'}, 400
                 ReceivedFile.logger.debug('file has been saved: {}'.format(os.path.join(args.directory, filename)))
                 return {'post': 'file was uploaded'}, 200
             except:

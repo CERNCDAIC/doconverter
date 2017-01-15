@@ -19,7 +19,7 @@ import shutil
 import configparser
 from itertools import repeat
 from doconverter.DoconverterException import DoconverterException
-
+from doconverter.config import APPCONFIG
 
 
 url = None
@@ -27,6 +27,7 @@ url_response = None
 files = []
 dir_response = None
 ini_file = r'c:\doconverter\config\doconverter.ini'
+
 
 def give_me_a_number(high_value):
     '''It provides a random number between [0,high_value]
@@ -38,6 +39,7 @@ def give_me_a_number(high_value):
     a = random.randint(0, high_value)
     print(a)
     return a
+
 
 def format_conversion(extension=None):
     '''Out of a predefined set e.g. pdf, pdfa, ps
@@ -52,6 +54,7 @@ def format_conversion(extension=None):
         available.remove('pdfa')
     return random.choice(available)
 
+
 def send_by_web(filename, dict):
     '''Send file to a certain URL
 
@@ -61,18 +64,18 @@ def send_by_web(filename, dict):
 
     print('working with file %s ' % filename)
     m = re.match(r'.*\.(\w+)', filename)
-    extension=None
+    extension = None
     if m.groups():
         extension = m.group(1)
     fin = open(filename, 'rb')
     file = {'uploadedfile': fin}
     payload = {
         'converter': format_conversion(extension),
-        'diresponse': dict['diresponse'],
+        'dirresponse': dict['diresponse'],
         'urlresponse': dict['url_response']
     }
     try:
-        r = requests.post(dict['url'], files=file, data=payload, verify=False)
+        r = requests.post(dict['url'], files=file, data=payload, verify=APPCONFIG['ca_bundle'])
         print(r.text)
     except Exception as ex:
         print("Unexpected error: %s", ex)
@@ -90,7 +93,7 @@ def build_array_processes(iterations, POOLSIZE):
     '''
     print('Poolsize: {}, totalnum: {}'.format(POOLSIZE, iterations))
     digest_pool = multiprocessing.Pool(POOLSIZE)
-    allfiles = build_array_files(iterations,len(files) - 1)
+    allfiles = build_array_files(iterations, len(files) - 1)
 
     print('length allfiles %s: ' % len(allfiles))
     print('POOLSIZE %s: ' % POOLSIZE)
@@ -103,6 +106,7 @@ def build_array_processes(iterations, POOLSIZE):
     digest_pool.starmap(send_by_web, zip(allfiles, repeat(dict)))
     digest_pool.close()
     digest_pool.join()
+
 
 def format_filename(file, number):
     '''
@@ -117,25 +121,27 @@ def format_filename(file, number):
         sequence = '{num:05d}'.format(num=number)
         new_filename = 'file{0}.{1}'.format(sequence, matched.group(2))
         print('filename is: %s' % new_filename)
-        shutil.copyfile(file, os.path.join(path,new_filename))
-        return os.path.join(path,new_filename)
+        shutil.copyfile(file, os.path.join(path, new_filename))
+        return os.path.join(path, new_filename)
     return None
 
-def build_array_files(iteractions,nr_files):
+
+def build_array_files(iteractions, nr_files):
     '''
 
     :param iterations: final array should have that quantity of files
     :return: array of files out of 'files' internal array
     '''
     arr = []
-    for x in range(0,iteractions):
+    for x in range(0, iteractions):
         file = files[give_me_a_number(nr_files)]
-        newfile = format_filename(file,x)
+        newfile = format_filename(file, x)
         print('newfile is %s' % newfile)
         if newfile and os.path.exists(newfile):
             arr.append(newfile)
     print(arr)
     return arr
+
 
 def init_config():
     ''' Initialise global variables e.g. url, url_response,...
@@ -166,12 +172,13 @@ def init_config():
             raise DoconverterException("Missing option: {}".format('url_response'))
         if CONFIG.has_option("test", "files"):
             global files
-            files = CONFIG.get("test", "files").replace('\n','',1).split(',')
+            files = CONFIG.get("test", "files").replace('\n', '', 1).split(',')
             print('files {}'.format(files))
         else:
             raise DoconverterException("Missing option: {}".format('files'))
     else:
         raise DoconverterException("Missing test options")
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Testing upload of file using multiprocesses')
@@ -187,7 +194,7 @@ if __name__ == '__main__':
     iterations = results.iterations
     POOLSIZE = results.POOLSIZE
     if results.dest_url:
-        url=results.dest_url
+        url = results.dest_url
     start = time.time()
     build_array_processes(iterations, POOLSIZE)
     print('{} run lasted (in seconds)'.format(time.time() - start))

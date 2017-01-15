@@ -29,7 +29,7 @@ class UploadFile(Resource):
         self.reqparse_post.add_argument('uploadedfile', type=FileStorage, location='files')
         self.reqparse_post.add_argument('converter', type=str, location='form', required=True)
         self.reqparse_post.add_argument('urlresponse', type=str, location='form', required=True)
-        self.reqparse_post.add_argument('diresponse', type=str, location='form', required=True)
+        self.reqparse_post.add_argument('dirresponse', type=str, location='form', required=True)
 
     def post(self):
         UploadFile.logger.debug("post begin")
@@ -50,4 +50,10 @@ class UploadFile(Resource):
             pathdir = os.path.join(APPCONFIG['uploadsresults'], str(task.taskid))
             file.save(os.path.join(pathdir, filename))
 
+            from doconverter.models.Taskdb import TaskMapper
+            if TaskMapper.insert_from_taskfile(task):
+                UploadFile.logger.debug('Task {} inserted in db'.format(task.taskid))
+        else:
+            UploadFile.logger.debug('<{}> is not permitted'.format(extension))
+            return {'post': 'Extension is not permitted!'}, 400
         return {'post': 'file was uploaded'}, 200

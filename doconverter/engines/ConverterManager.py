@@ -1,7 +1,7 @@
 #!c:\Python34\python.exe
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016, CERN
+# Copyright (C) 2017, CERN
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPL Version 3), copied verbatim in the file "LICENSE".
 # In applying this license, CERN does not waive the privileges and immunities
@@ -18,6 +18,7 @@ from doconverter.config import APPCONFIG
 from doconverter.DoconverterException import DoconverterException
 from doconverter.tools.Utils import Utils
 from doconverter.engines.Neevia import Neevia  # noqa
+
 
 class ConverterManager(multiprocessing.Process):
     logger = None
@@ -43,6 +44,7 @@ class ConverterManager(multiprocessing.Process):
             .format(self.task.extension, self.converter_class, self.task.taskid))
 
     def run(self):
+        from doconverter.models.Result_Conversion import Result_ConversionMapper
         converter = self.converter_class(self.task.taskid, self.queue)
         logger = Utils.initlogger(self.queue)
         status = -1
@@ -64,6 +66,19 @@ class ConverterManager(multiprocessing.Process):
                         self.task.converter,
                         Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.newfilename)),
                         totalsecs))
+                if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
+                                                            taskid=self.task.taskid,
+                                                            size_from=Utils.getfilesizeinkb(
+                                                                os.path.join(self.task.fullocalpath,
+                                                                             self.task.uploadedfile)),
+                                                            size_to=Utils.getfilesizeinkb(
+                                                                os.path.join(self.task.fullocalpath,
+                                                                             self.task.newfilename)),
+                                                            duration=totalsecs,
+                                                            converter=str(self.converter_class))):
+                    logger.debug('Results for task {} were logged.'.format(self.task.taskid))
+                else:
+                    logger.debug('Problem logging task {} into DB'.format(self.task.taskid))
 
                 self.task.sendbyweb(os.path.join(self.task.fullocalpath, self.task.newfilename), status)
             else:
@@ -74,10 +89,50 @@ class ConverterManager(multiprocessing.Process):
                                                                                                self.task.extension,
                                                                                                self.task.converter,
                                                                                                totalsecs))
+                if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
+                                                            taskid=self.task.taskid,
+                                                            size_from=Utils.getfilesizeinkb(
+                                                                os.path.join(self.task.fullocalpath,
+                                                                             self.task.uploadedfile)),
+                                                            size_to=-1,
+                                                            duration=totalsecs,
+                                                            converter=str(self.converter_class))):
+                    logger.debug('Results for task {} were logged.'.format(self.task.taskid))
+                else:
+                    logger.debug('Problem logging task {} into DB'.format(self.task.taskid))
+
                 self.task.sendbyweb(None, status)
-        except:
-            exc_type, exc_value, exc_tb = sys.exc_info()
-            logger.debug('Exception got {}. '.format(traceback.print_exception(exc_type, exc_value, exc_tb)))
+        except DoconverterException as ex:
+            logger.debug('DoconverterException {}'.format(ex))
+            if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
+                                                   taskid=self.task.taskid,
+                                                   size_from=Utils.getfilesizeinkb(
+                                                       os.path.join(self.task.fullocalpath,
+                                                                    self.task.uploadedfile)),
+                                                   size_to=-1,
+                                                   duration=-1,
+                                                   converter=str(self.converter_class),
+                                                   error=repr(ex))):
+                logger.debug('Results for task {} were logged.'.format(self.task.taskid))
+            else:
+                logger.debug('Problem logging task {} into DB'.format(self.task.taskid))
+
+        except Exception as ex:
+            logger.debug('Exception got {}. Stack trace: {} '.format(ex, traceback.print_exc()))
+
+            if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
+                                                   taskid=self.task.taskid,
+                                                   size_from=Utils.getfilesizeinkb(
+                                                       os.path.join(self.task.fullocalpath,
+                                                                    self.task.uploadedfile)),
+                                                   size_to=-1,
+                                                   duration=-1,
+                                                   converter=str(self.converter_class),
+                                                   error=repr(ex))):
+                logger.debug('Results for task {} were logged.'.format(self.task.taskid))
+            else:
+                logger.debug('Problem logging task {} into DB'.format(self.task.taskid))
+
         finally:
             self.common_list.remove(int(self.task.taskid))
             self.common_list.append(-666)
@@ -87,5 +142,6 @@ class ConverterManager(multiprocessing.Process):
                                                                                      self.task.uploadedfile,
                                                                                      self.task.extension,
                                                                                      self.task.converter))
+
                 self.task.sendbyweb(None, status)
             sys.exit()

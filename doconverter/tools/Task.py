@@ -32,7 +32,6 @@ class Task(object):
         self.converter = converter
         self.urlresponse = urlresponse
         self.diresponse = diresponse
-        logger.info('upresults %s' % APPCONFIG['uploadsresults'])
         logger.info('taskid %s' % self.taskid)
         self.fullocalpath = os.path.join(APPCONFIG['uploadsresults'], str(self.taskid))
         self.extension = self.uploadedfile.split('.')[1].lower()
@@ -40,7 +39,7 @@ class Task(object):
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
         else:
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], self.converter)
-        logger.info('newfilename is %s' % self.newfilename)
+        logger.info('%s newfilename is %s' % (self.taskid, self.newfilename))
         self.__createTask()
 
     def __createTask(self):
@@ -156,14 +155,15 @@ class Task(object):
                                      verify=False)
             logger.info('Sending file 2')
             if response.status_code >= 300:
-                raise requests.RequestException('Unexpected response from server: {}'.format(response.text))
-            logger.info('Submitted %s for PDF conversion', pathtofile)
+                raise requests.RequestException('{} Unexpected response from server: {}'.format(self.taskid,
+                                                                                                response.text))
+            logger.info('{} result submitted to callback'.format(self.taskid))
         else:
             response = requests.post(self.urlresponse, data=payload, verify=False)
             if response.status_code >= 300:
-                logger.debug('error while sending file %s to %s', pathtofile, self.urlresponse)
+                logger.debug('{} error while sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
             else:
-                logger.info('success sending file %s to %s', pathtofile, self.urlresponse)
+                logger.info('{} success sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
 
         totalsecs = round(time.clock() - before)
         logger.info('Sending file {} to {} took: {} secs'.format(pathtofile, self.urlresponse, totalsecs))

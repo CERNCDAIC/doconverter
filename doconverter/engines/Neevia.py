@@ -1,7 +1,7 @@
 #!c:\Python34\python.exe
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016, CERN
+# Copyright (C) 2017, CERN
 # This software is distributed under the terms of the GNU General Public
 # Licence version 3 (GPL Version 3), copied verbatim in the file "LICENSE".
 # In applying this license, CERN does not waive the privileges and immunities
@@ -12,6 +12,7 @@
 import win32com.client
 import os
 import time
+import random
 from doconverter.tools.Task import Task
 from doconverter.tools.Utils import Utils
 from doconverter.config import APPCONFIG
@@ -72,7 +73,9 @@ class Neevia(object):
             -8: '-8 OutputFolder=InputFolder (output folder cannot be the same as input folder)'
             }
         error = retvals.get(retval, '%s Undocumented Return Value')
-        return error
+        if error is not None:
+            logger.debug('{} submitting file issue1 <{}>'.format(self.task.taskid, error))
+        return retval
 
     def convert(self):
         logger.debug('{} convertion started'.format(self.task.taskid))
@@ -82,41 +85,56 @@ class Neevia(object):
                                                                                    self.task.uploadedfile)))
         NDocConverter = win32com.client.Dispatch("Neevia.docConverter")
         if self.task.converter.upper() == 'PS':
-            print('PS CONVERSIONG')
+            logger.debug('{} convertion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+                                                                    'PS'))
             NDocConverter.setParameter("DocumentOutputFormat", "POSTSCRIPT")
         elif self.task.converter.upper() == 'PDFA':
-            print('PDFAAAAA CONVERSION')
+            logger.debug('{} convertion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+                                                                    'PDF/A'))
             NDocConverter.setParameter("DocumentOutputFormat", "PDF/A")
         else:
             NDocConverter.setParameter("DocumentOutputFormat", self.task.converter.upper())
+            logger.debug('{} convertion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+                                                                    'PDF'))
         NDocConverter.setParameter("DocumentOutputFolder", self.success_dir)
         NDocConverter.setParameter("JobOption", "printer")
 
+        # sleep randomly to reduce likelihood of -3 Invalid input folder error
+        time.sleep(random.randint(1, 15))
         self.__submit_return_check(NDocConverter.SubmitFile(os.path.join(self.task.fullocalpath,
                                                                          self.task.uploadedfile), ''))
 
         logger.debug('{} file submitted: {} '.format(self.task.taskid, self.task.uploadedfile))
         status = None
-        while 1:
-            status = self.__checkstatusretval(NDocConverter.CheckStatus(os.path.join(
-                                                                                    self.task.fullocalpath,
-                                                                                    self.task.uploadedfile), ''))
-
-            if status == 2:
-                NDocConverter.doSleep(1000)
+        while True:
+            try:
+                status = self.__checkstatusretval(NDocConverter.CheckStatus(os.path.join(
+                                                                                        self.task.fullocalpath,
+                                                                                        self.task.uploadedfile), ''))
+                if status == 2:
+                    NDocConverter.doSleep(1000)
+                    continue
+            except DoconverterException:
+                for x in range(0, 30):
+                    if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
+                        return 0
+                    time.sleep(1)
+                raise
+            except:
+                for x in range(0, 30):
+                    if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
+                        return 0
+                    time.sleep(1)
+                raise
             else:
-                break
-
-        # legacy code, just wait in case dfs takes a while to show file
-        for x in range(0, 10):
-            if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
-                return 0
-            time.sleep(1)
-        if not os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
-            raise DoconverterException('{} converted file {} missing. Error code from Neevia: {}'.format(
-                                                                            self.task.taskid,
-                                                                            os.path.join(
-                                                                                  self.task.fullocalpath,
-                                                                                  self.task.newfilename), status))
-
-        return status
+                for x in range(0, 60):
+                    if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
+                        return 0
+                    time.sleep(1)
+                if not os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
+                    raise DoconverterException('{} converted file {} missing. Error code from Neevia: {}'.format(
+                        self.task.taskid,
+                        os.path.join(
+                            self.task.fullocalpath,
+                            self.task.newfilename), status))
+                return status

@@ -18,7 +18,7 @@ from doconverter.tools.Task import Task
 
 class Taskdb(db.Model):
     __tablename__ = 'taskdb'
-    __table_args__ = {'schema': 'doconverter'}
+    __table_args__ = (db.Index('timefortaskdb_col', 'logdate'), {'schema': 'doconverter'})
 
     extension = db.Column(db.String(16), nullable=False)
     newfilename = db.Column(db.String(128), nullable=False)

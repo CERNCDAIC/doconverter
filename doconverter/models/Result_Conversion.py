@@ -13,6 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from doconverter.tools.Utils import Utils
 from datetime import datetime, timedelta
 from doconverter.models.extensions import db
+from doconverter.models.Taskdb import Taskdb  # noqa
 
 
 class Result_Conversion(db.Model):

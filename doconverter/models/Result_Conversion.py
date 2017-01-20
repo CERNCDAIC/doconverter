@@ -77,7 +77,6 @@ class Result_Conversion(db.Model):
         self.size_to = fields.get('size_to', -1)
         self.duration = fields.get('duration', -1)
         self.server = Utils.getserver()
-        print(self.server)
         self.logdate = datetime.now()
         self.error = fields.get('error', None)
 

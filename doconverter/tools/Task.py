@@ -137,13 +137,15 @@ class Task(object):
         """Send the converted file to the specified location
 
         :param pathtofile - location of the converted file that needs to be sent back
-        :param status - result of conversion: success: 1 otherwise error
+        :param status - result of conversion. It needs to be 1 if success, otherwise error
         :return:
         """
+        if not status:
+            status = 1 # sucess
         payload = {
             'directory': self.diresponse,
             'status': status,
-            'filename': self.uploadedfile,
+            'filename': self.newfilename,
             'error_message': status
         }
         before = time.clock()

@@ -39,7 +39,7 @@ class ReceivedFile(Resource):
                     return {'post': 'not valid directory provided!'}, 400
                 filename = secure_filename(args.filename)
                 ReceivedFile.logger.debug('filename secured: {}'.format(filename))
-                if request.form['content']:
+                if 'content' in request.form:
                     data = base64.b64decode(request.form['content'])
                     with open(os.path.join(args.directory, filename), 'wb') as fd:
                         fd.write(data)
@@ -60,4 +60,4 @@ class ReceivedFile(Resource):
                 return {'post': 'Internal Error'}, 500
         else:
             ReceivedFile.logger.debug('{} was not succesfully converted.'.format(args['filename']))
-            return {'post': 'info received'}, 200
+            return {'post': 'info received'}, 400

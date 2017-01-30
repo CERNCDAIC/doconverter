@@ -17,10 +17,18 @@ import json
 import os
 from doconverter.DoconverterException import DoconverterException
 
+
 CONFIG = None
 APPCONFIG = {}
 
-with open("c:\doconverter\config\logging.conf") as jdata:
+FILELOGS = None
+if os.name == 'posix':
+    FILELOGS = '/etc/doconverter/logging.conf'
+    FILEINI = '/etc/doconverter/doconverter.ini'
+else:
+    FILELOGS = 'c:\doconverter\config\logging.conf'
+    FILEINI = 'c:\doconverter\config\doconverter.ini'
+with open(FILELOGS) as jdata:
     config_logging = json.load(jdata)
 
 logging.config.dictConfig(config_logging)
@@ -31,32 +39,37 @@ logger.debug("logger has been initialised")
 try:
     # Load configuration from file
     CONFIG = configparser.ConfigParser()
-    CONFIG.read("c:\doconverter\config\doconverter.ini")
+    CONFIG.read(FILEINI)
     # Get usual values
     if CONFIG.has_section("default"):
         if CONFIG.has_option("default", "prefix_dir"):
             APPCONFIG["prefix_dir"] = CONFIG.get("default", "prefix_dir")
             if not os.path.exists(APPCONFIG["prefix_dir"]):
-                raise DoconverterException(APPCONFIG["prefix_dir"] + " doesnt exist")
+                logger.debug(APPCONFIG["prefix_dir"] + " doesnt exist")
+                os.mkdir(APPCONFIG["prefix_dir"])
 
             if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "tasks")):
                 pathname = os.path.join(APPCONFIG["prefix_dir"], "tasks")
-                raise DoconverterException(pathname + " doesnt exist")
+                logger.debug(pathname + " doesnt exist")
+                os.mkdir(pathname)
             APPCONFIG["tasks"] = os.path.join(APPCONFIG["prefix_dir"], "tasks")
 
             if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "uploadsresults")):
                 pathname = os.path.join(os.path.join(APPCONFIG["prefix_dir"], "uploadsresults"))
-                raise DoconverterException("{} doesnt exist".format(pathname))
+                logger.debug("{} doesnt exist".format(pathname))
+                os.mkdir(pathname)
             APPCONFIG["uploadsresults"] = os.path.join(APPCONFIG["prefix_dir"], "uploadsresults")
 
             if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "error")):
                 pathname = os.path.join(os.path.join(APPCONFIG["prefix_dir"], "error"))
-                raise DoconverterException("{} doesnt exist".format(pathname))
+                logger.debug("{} doesnt exist".format(pathname))
+                os.mkdir(pathname)
             APPCONFIG["error"] = os.path.join(APPCONFIG["prefix_dir"], "error")
 
             if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "success")):
                 pathname = os.path.join(os.path.join(APPCONFIG["prefix_dir"], "success"))
-                raise DoconverterException("{} doesnt exist".format(pathname))
+                logger.debug("{} doesnt exist".format(pathname))
+                os.mkdir(pathname)
             APPCONFIG["success"] = os.path.join(APPCONFIG["prefix_dir"], "success")
 
         if CONFIG.has_option('default', 'extensions_all'):
@@ -64,6 +77,9 @@ try:
             logger.debug('all allowed extensions loaded: %s', APPCONFIG['extensions_all'])
         if CONFIG.has_option('default', 'archival_dir'):
             APPCONFIG['archival_dir'] = CONFIG.get('default', 'archival_dir')
+            if not os.path.exists(APPCONFIG['archival_dir']):
+                logger.debug("{} doesnt exist".format(APPCONFIG['archival_dir']))
+                os.mkdir(APPCONFIG['archival_dir'])
         APPCONFIG['ca_bundle'] = False
         if CONFIG.has_option('default', 'ca_bundle'):
             APPCONFIG['ca_bundle'] = CONFIG.get('default', 'ca_bundle')

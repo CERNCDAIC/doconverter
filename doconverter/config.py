@@ -24,7 +24,7 @@ APPCONFIG = {}
 FILELOGS = None
 if os.name == 'posix':
     FILELOGS = '/etc/doconverter/logging.conf'
-    FILEINI = '/etc/doconverter/ini/doconverter.ini'
+    FILEINI = '/etc/doconverter/doconverter.ini'
 else:
     FILELOGS = 'c:\doconverter\config\logging.conf'
     FILEINI = 'c:\doconverter\config\doconverter.ini'

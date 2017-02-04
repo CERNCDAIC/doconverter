@@ -100,7 +100,7 @@ class Neevia(object):
         NDocConverter.setParameter("JobOption", "printer")
 
         # sleep randomly to reduce likelihood of -3 Invalid input folder error
-        time.sleep(random.randint(0, 10))
+        # time.sleep(random.randint(0, 15))
         self.__submit_return_check(NDocConverter.SubmitFile(os.path.join(self.task.fullocalpath,
                                                                          self.task.uploadedfile), ''))
 
@@ -127,7 +127,7 @@ class Neevia(object):
                     time.sleep(1)
                 raise
             else:
-                for x in range(0, 35):
+                for x in range(0, 60):
                     if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
                         return 0
                     time.sleep(1)

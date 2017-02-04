@@ -14,4 +14,5 @@ from doconverter.config import APPCONFIG
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = APPCONFIG['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_POOL_SIZE'] = 10
 db = SQLAlchemy(app)

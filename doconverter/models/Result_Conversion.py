@@ -23,6 +23,10 @@ class Result_Conversion(db.Model):
         ['doconverter.taskdb.server', 'doconverter.taskdb.taskid'],
         onupdate='cascade', ondelete='cascade'), db.Index('time_col', 'logdate'),
                       db.Index('fk_constraint', 'server', 'taskid'),
+                      db.Index('fromtoextention_col', 'from_ext', 'to_ext'),
+                      db.Index('size_from_col','size_from'),
+                      db.Index('size_to_col', 'size_to'),
+                      db.Index('duration_col', 'duration'),
                       {'schema': 'doconverter'})
 
     id = db.Column(db.Integer, primary_key=True)

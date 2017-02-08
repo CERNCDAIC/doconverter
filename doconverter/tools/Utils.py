@@ -9,6 +9,7 @@
 # or submit itself to any jurisdiction.
 
 import os
+import platform
 import random
 import logging
 import psutil
@@ -30,7 +31,7 @@ class Utils(object):
             Utils.logger = logging.getLogger('doconverter-api')
 
     @staticmethod
-    def generate_taskid():
+    def generate_taskid(server=None):
         """Generate a taskid that should be unique among possible current running tasks"""
         Utils.__getlogging()
         Utils.logger.info('checking possible taskid')
@@ -39,10 +40,12 @@ class Utils(object):
         taskid = random.randint(0, 999999999)
         while True:
             Utils.logger.info('checking possible taskid %s', taskid)
-            if not os.path.isfile(os.path.join(APPCONFIG['tasks'], str(taskid))) \
-                    and not os.path.isfile(os.path.join(APPCONFIG['error'], str(taskid))) \
-                    and not os.path.isfile(os.path.join(APPCONFIG['success'], str(taskid))) \
-                    and not os.path.exists(os.path.join(APPCONFIG['uploadsresults'], str(taskid))):
+            if not server:
+                server = Utils.getserver()
+            if not os.path.isfile(os.path.join(APPCONFIG[server]['tasks'], str(taskid))) \
+                    and not os.path.isfile(os.path.join(APPCONFIG[server]['error'], str(taskid))) \
+                    and not os.path.isfile(os.path.join(APPCONFIG[server]['success'], str(taskid))) \
+                    and not os.path.exists(os.path.join(APPCONFIG[server]['uploadsresults'], str(taskid))):
                         break
             taskid = random.randint(0, 999999999)
         Utils.logger.info("new taskid generated %s" % taskid)
@@ -184,3 +187,4 @@ class Utils(object):
         finally:
             s.quit()
         return True
+

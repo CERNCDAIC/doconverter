@@ -15,6 +15,7 @@ import sys
 import traceback
 import json
 import os
+import platform
 from doconverter.DoconverterException import DoconverterException
 
 
@@ -31,46 +32,69 @@ else:
 with open(FILELOGS) as jdata:
     config_logging = json.load(jdata)
 
+server = platform.uname()[1]
+if server.index('.') > 0:
+    server = server.split('.')[0]
 logging.config.dictConfig(config_logging)
 logger = logging.getLogger('doconverter-api')
 
 logger.debug("logger has been initialised")
-
+print(FILEINI)
 try:
     # Load configuration from file
     CONFIG = configparser.ConfigParser()
     CONFIG.read(FILEINI)
     # Get usual values
-    if CONFIG.has_section("default"):
+    APPCONFIG['servers'] = [server, ]
+
+    if CONFIG.has_section('default'):
+        if CONFIG.has_option('default','servers'):
+            APPCONFIG['servers'] = CONFIG.get('default', 'servers').split(',')
         if CONFIG.has_option("default", "prefix_dir"):
             APPCONFIG["prefix_dir"] = CONFIG.get("default", "prefix_dir")
-            if not os.path.exists(APPCONFIG["prefix_dir"]):
-                logger.debug(APPCONFIG["prefix_dir"] + " doesnt exist")
-                os.mkdir(APPCONFIG["prefix_dir"])
+            for computer in APPCONFIG['servers']:
+                APPCONFIG[computer] = {}
+                if CONFIG.has_option('default', computer):
+                    APPCONFIG[computer]["extensions_allowed"] = CONFIG.get('default', computer).split(',')
+                    print("extensions_allowed {}".format(APPCONFIG[computer]["extensions_allowed"]))
+                else:
+                    logger.debug("{} has not allowed_extensions.".format(computer))
+                    raise DoconverterException(
+                        "{} has not allowed_extensions.".format(computer))
+                if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], computer, 'var')):
+                    logger.debug(os.path.join(APPCONFIG["prefix_dir"], computer, 'var') + " doesnt exist")
+                    os.mkdir(os.path.join(APPCONFIG["prefix_dir"], computer, 'var'))
+                APPCONFIG[computer]['prefix_dir'] = os.path.join(APPCONFIG["prefix_dir"], computer, 'var')
+                print("extensions_allowed {}".format(APPCONFIG[computer]["prefix_dir"]))
 
-            if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "tasks")):
-                pathname = os.path.join(APPCONFIG["prefix_dir"], "tasks")
-                logger.debug(pathname + " doesnt exist")
-                os.mkdir(pathname)
-            APPCONFIG["tasks"] = os.path.join(APPCONFIG["prefix_dir"], "tasks")
+                if not os.path.exists(os.path.join(APPCONFIG[computer]['prefix_dir'], "tasks")):
+                    pathname = os.path.join(APPCONFIG[computer]['prefix_dir'], "tasks")
+                    logger.debug(pathname + " doesnt exist")
+                    os.mkdir(pathname)
+                APPCONFIG[computer]["tasks"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "tasks")
+                print("extensions_allowed {}".format(APPCONFIG[computer]["tasks"]))
 
-            if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "uploadsresults")):
-                pathname = os.path.join(os.path.join(APPCONFIG["prefix_dir"], "uploadsresults"))
-                logger.debug("{} doesnt exist".format(pathname))
-                os.mkdir(pathname)
-            APPCONFIG["uploadsresults"] = os.path.join(APPCONFIG["prefix_dir"], "uploadsresults")
+                if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "uploadsresults")):
+                    pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "uploadsresults"))
+                    logger.debug("{} doesnt exist".format(pathname))
+                    os.mkdir(pathname)
+                APPCONFIG[computer]["uploadsresults"] = os.path.join(APPCONFIG[computer]["prefix_dir"],
+                                                                     "uploadsresults")
+                print("extensions_allowed {}".format(APPCONFIG[computer]["uploadsresults"]))
 
-            if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "error")):
-                pathname = os.path.join(os.path.join(APPCONFIG["prefix_dir"], "error"))
-                logger.debug("{} doesnt exist".format(pathname))
-                os.mkdir(pathname)
-            APPCONFIG["error"] = os.path.join(APPCONFIG["prefix_dir"], "error")
+                if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "error")):
+                    pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "error"))
+                    logger.debug("{} doesnt exist".format(pathname))
+                    os.mkdir(pathname)
+                APPCONFIG[computer]["error"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "error")
+                print("extensions_allowed {}".format(APPCONFIG[computer]["error"]))
 
-            if not os.path.exists(os.path.join(APPCONFIG["prefix_dir"], "success")):
-                pathname = os.path.join(os.path.join(APPCONFIG["prefix_dir"], "success"))
-                logger.debug("{} doesnt exist".format(pathname))
-                os.mkdir(pathname)
-            APPCONFIG["success"] = os.path.join(APPCONFIG["prefix_dir"], "success")
+                if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "success")):
+                    pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "success"))
+                    logger.debug("{} doesnt exist".format(pathname))
+                    os.mkdir(pathname)
+                APPCONFIG[computer]["success"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "success")
+                print("extensions_allowed {}".format(APPCONFIG[computer]["success"]))
 
         if CONFIG.has_option('default', 'extensions_all'):
             APPCONFIG['extensions_all'] = CONFIG.get('default', 'extensions_all').split(',')
@@ -147,6 +171,7 @@ try:
             APPCONFIG['SQLALCHEMY_DATABASE_URI'] = '{}:{}@{}:{}/{}'.format(user, password, host, port, db)
         else:
             raise DoconverterException("Some db config is not defined")
+
 except IOError as e:
     traceback.print_exc(file=sys.stdout)
     sys.exit(e.code)

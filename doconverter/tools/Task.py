@@ -13,6 +13,7 @@ import json
 import shutil
 import requests
 import time
+import random
 from doconverter.config import APPCONFIG
 from doconverter.tools.Utils import Utils
 
@@ -25,16 +26,18 @@ class Task(object):
         logger = Utils.initlogger(queue)
         self.queue = queue
         self.uploadedfile = uploadedfile
-        if not taskid:
-            self.taskid = Utils.generate_taskid()
-        else:
-            self.taskid = taskid
         self.converter = converter
         self.urlresponse = urlresponse
         self.diresponse = diresponse
-        logger.info('taskid %s' % self.taskid)
-        self.fullocalpath = os.path.join(APPCONFIG['uploadsresults'], str(self.taskid))
         self.extension = self.uploadedfile.split('.')[1].lower()
+        self.server = self.decidequeue(self.extension)
+        if not taskid:
+            self.taskid = Utils.generate_taskid(self.server)
+            logger.info('new taskid %s' % self.taskid)
+        else:
+            self.taskid = taskid
+        self.fullocalpath = os.path.join(APPCONFIG[self.server]['uploadsresults'], str(self.taskid))
+
         if converter == 'pdfa':
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
         else:
@@ -44,11 +47,11 @@ class Task(object):
 
     def __createTask(self):
         """Internal method to create the physical location (directory + file) for the task"""
-        if not os.path.exists(os.path.join(APPCONFIG['uploadsresults'], str(self.taskid))):
-            os.makedirs(os.path.join(APPCONFIG['uploadsresults'], str(self.taskid)))
-            logger.debug('we created dir: %s', os.path.join(APPCONFIG['uploadsresults'], str(self.taskid)))
+        if not os.path.exists(os.path.join(APPCONFIG[self.server]['uploadsresults'], str(self.taskid))):
+            os.makedirs(os.path.join(APPCONFIG[self.server]['uploadsresults'], str(self.taskid)))
+            logger.debug('we created dir: %s', os.path.join(APPCONFIG[self.server]['uploadsresults'], str(self.taskid)))
         # create initial file task
-        self.__createFileTask(os.path.join(APPCONFIG["tasks"], str(self.taskid)))
+        self.__createFileTask(os.path.join(APPCONFIG[self.server]["tasks"], str(self.taskid)))
 
     def __createFileTask(self, path):
         """Create a file with the task to be done. The contents are a json type.
@@ -74,33 +77,46 @@ class Task(object):
             json.dump(data, outfile)
 
     @staticmethod
-    def getaskbyid(taskid, queue=None, dir=APPCONFIG['tasks']):
+    def getaskbyid(taskid, queue=None, dir=None):
         """It generates a task object from a taskid.
 
         :param taskid - taskid of the task object
-        :return:
+        :return: a task object with the given taskid
         """
-
+        if not dir:
+            dir = Utils.getserver()
         if os.path.exists(os.path.join(dir, taskid)):
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
             return Task(data['uploadedfile'], data['converter'], data['urlresponse'], data['diresponse'], taskid, queue)
         return None
 
+    def decidequeue(self, fromext):
+        """Decide which queue should be used in order to work with a particular extension
+
+        :return: queue (a server name, without extension)
+        """
+        possibles = []
+        for server in APPCONFIG['servers']:
+            if fromext in APPCONFIG[server]['extensions_allowed']:
+                    possibles.append(server)
+        return random.choice(possibles)
+
     def movetosuccess(self):
         """Move a task file to the right directory. It acts as a kind of state machine.
 
         :return: True if the taskfile could be moved and False in case there was an issue
         """
-        if os.path.isfile(os.path.join(APPCONFIG['tasks'], self.taskid)):
-            shutil.move(os.path.join(APPCONFIG['tasks'], self.taskid),
-                        os.path.join(APPCONFIG['success'], self.taskid))
+        if os.path.isfile(os.path.join(APPCONFIG[self.server]['tasks'], self.taskid)):
+            shutil.move(os.path.join(APPCONFIG[self.server]['tasks'], self.taskid),
+                        os.path.join(APPCONFIG[self.server]['success'], self.taskid))
             Utils.logmessage('{} moving {} to {}'.format(self.taskid,
-                                                         os.path.join(APPCONFIG['tasks'], self.taskid),
-                                                         os.path.join(APPCONFIG['success'], self.taskid)), self.queue)
+                                                         os.path.join(APPCONFIG[self.server]['tasks'], self.taskid),
+                                                         os.path.join(APPCONFIG[self.server]['success'], self.taskid)),
+                             self.queue)
         else:
             Utils.logmessage('task file %s doesnt exist, strange!'
-                             .format(os.path.join(APPCONFIG['tasks'], self.taskid)),
+                             .format(os.path.join(APPCONFIG[self.server]['tasks'], self.taskid)),
                              self.queue)
             return False
         return True
@@ -110,16 +126,18 @@ class Task(object):
 
         :return: True if the taskfile could be moved and False in case there was an issue
         """
-        if os.path.isfile(os.path.join(APPCONFIG['tasks'], self.taskid)):
-            shutil.move(os.path.join(APPCONFIG['tasks'], self.taskid),
-                        os.path.join(APPCONFIG['error'], self.taskid))
+        if os.path.isfile(os.path.join(APPCONFIG[self.server]['tasks'], self.taskid)):
+            shutil.move(os.path.join(APPCONFIG[self.server]['tasks'], self.taskid),
+                        os.path.join(APPCONFIG[self.server]['error'], self.taskid))
             Utils.logmessage('{} moving from {} to {}'.format(self.taskid,
-                                                              os.path.join(APPCONFIG['tasks'], self.taskid),
-                                                              os.path.join(APPCONFIG['error'], self.taskid)),
+                                                              os.path.join(APPCONFIG[self.server]['tasks'],
+                                                                           self.taskid),
+                                                              os.path.join(APPCONFIG[self.server]['error'],
+                                                                           self.taskid)),
                              self.queue)
         else:
             Utils.logmessage('task file %s doesnt exist, strange!'.format(
-                os.path.join(APPCONFIG['tasks'], self.taskid)),
+                os.path.join(APPCONFIG[self.server]['tasks'], self.taskid)),
                              self.taskid)
             return False
         return True

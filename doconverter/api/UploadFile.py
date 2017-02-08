@@ -47,7 +47,7 @@ class UploadFile(Resource):
             filename = secure_filename(file.filename)
             task = Task(converter=args["converter"], urlresponse=args["urlresponse"], diresponse=args["dirresponse"],
                         uploadedfile=filename)
-            pathdir = os.path.join(APPCONFIG['uploadsresults'], str(task.taskid))
+            pathdir = task.fullocalpath
             file.save(os.path.join(pathdir, filename))
 
             from doconverter.models.Taskdb import TaskMapper

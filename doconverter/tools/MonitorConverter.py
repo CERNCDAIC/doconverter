@@ -22,9 +22,10 @@ class MonitorConverter:
 
     def __init__(self, mainscript, counter=2):
         MonitorConverter.logger = Utils.initlogger()
-        self.tasksdir = APPCONFIG['tasks']
+        self.server = Utils.get_server_name()
+        self.tasksdir = APPCONFIG[self.server]['tasks']
         self.emailtolist = APPCONFIG['emails']
-        self.archival_dir = APPCONFIG['archival_dir']
+        self.archival_dir = APPCONFIG[self.server]['archival_dir']
         self.taskalert = APPCONFIG['taskalert']
         self.converters = APPCONFIG['converters']
         self.daemon = mainscript

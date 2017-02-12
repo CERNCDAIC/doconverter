@@ -95,15 +95,16 @@ try:
                     os.mkdir(pathname)
                 APPCONFIG[computer]["success"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "success")
                 # print("extensions_allowed {}".format(APPCONFIG[computer]["success"]))
-
+                if CONFIG.has_option('default', 'archival_dir'):
+                    APPCONFIG['archival_dir'] = CONFIG.get('default', 'archival_dir')
+                    if not os.path.exists(os.path.join(APPCONFIG['archival_dir'], computer, 'archive')):
+                        logger.debug("{} doesnt exist".format(
+                            os.path.join(APPCONFIG['archival_dir'], computer, 'archive')))
+                        os.mkdir(os.path.join(APPCONFIG['archival_dir'], computer, 'archive'))
+                    APPCONFIG[computer]['archival_dir'] = os.path.join(APPCONFIG['archival_dir'], computer, 'archive')
         if CONFIG.has_option('default', 'extensions_all'):
             APPCONFIG['extensions_all'] = CONFIG.get('default', 'extensions_all').split(',')
             logger.debug('all allowed extensions loaded: %s', APPCONFIG['extensions_all'])
-        if CONFIG.has_option('default', 'archival_dir'):
-            APPCONFIG['archival_dir'] = CONFIG.get('default', 'archival_dir')
-            if not os.path.exists(APPCONFIG['archival_dir']):
-                logger.debug("{} doesnt exist".format(APPCONFIG['archival_dir']))
-                os.mkdir(APPCONFIG['archival_dir'])
         APPCONFIG['ca_bundle'] = False
         if CONFIG.has_option('default', 'ca_bundle'):
             APPCONFIG['ca_bundle'] = CONFIG.get('default', 'ca_bundle')

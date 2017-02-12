@@ -24,7 +24,6 @@ from doconverter.tools.MonitorConverter import MonitorConverter
 
 logger = None
 
-
 def logger_init():
     q = multiprocessing.Queue()
     # this is the handler for all log records
@@ -58,6 +57,8 @@ if __name__ == '__main__':
                         help='Performs basic monitoring checks')
     parser.add_argument('--a', action='store', type=int, dest='archive', required=False, default=0,
                         help='items older than this number of days will be moved to archive')
+    parser.add_argument('--c', action='store', type=str, dest='computer', required=False,
+                        help='queue to work tasks from. Usually same as the server were the program runs.')
 
     results = parser.parse_args()
     print(parser.parse_args())
@@ -95,6 +96,13 @@ if __name__ == '__main__':
             task.sendbyweb(task.convertedfile_exists(), 0)
         sys.exit(0)
 
+
+    if not results.computer:
+        server = Utils.get_server_name()
+    else:
+        Utils.set_server_name(results.computer)
+        server = Utils.get_server_name()
+
     # check if we are alone
     if Utils.isprocess_running(os.path.basename(sys.argv[0]), os.path.basename(sys.executable).split('.')[0]) > 1:
         logger.debug('A converter is already running!')
@@ -111,7 +119,7 @@ if __name__ == '__main__':
 
     logger.debug('number of processes %s', len(list_processes))
     while not os.path.exists(APPCONFIG['stopper']):
-        tasks = Utils.sortfilesbytime(APPCONFIG['tasks'])
+        tasks = Utils.sortfilesbytime(APPCONFIG[server]['tasks'])
         logger.debug('list of tasks %s', tasks)
         logger.debug('number of jobs %s', len(processes))
 

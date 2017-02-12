@@ -26,7 +26,7 @@ url = None
 url_response = None
 files = []
 dir_response = None
-ini_file = r'/etc/doconverter/doconverter.ini'
+ini_file = r'c:\doconverter\config\doconverter.ini'
 
 
 def give_me_a_number(high_value):

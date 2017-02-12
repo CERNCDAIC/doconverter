@@ -26,8 +26,8 @@ class Neevia(object):
         global logger
         logger = Utils.initlogger(queue)
         self.task = Task.getaskbyid(taskid, queue)
-        self.error_dir = os.path.join(APPCONFIG['error'], self.task.taskid)
-        self.success_dir = os.path.join(APPCONFIG['uploadsresults'], self.task.taskid)
+        self.error_dir = os.path.join(APPCONFIG[self.task.server]['error'], self.task.taskid)
+        self.success_dir = os.path.join(APPCONFIG[self.task.server]['uploadsresults'], self.task.taskid)
 
     @classmethod
     def get_classname(cls):
@@ -37,7 +37,7 @@ class Neevia(object):
         if not os.path.exists(self.success_dir):
             os.makedirs(self.success_dir, exist_ok=True)
             logger.debug('%s directory created: %s', self.task.taskid, self.success_dir)
-        if not os.path.exists(os.path.join(APPCONFIG['error'], self.task.taskid)):
+        if not os.path.exists(os.path.join(APPCONFIG[self.task.server]['error'], self.task.taskid)):
             os.makedirs(self.error_dir, exist_ok=True)
             logger.debug('%s directory created: %s', self.task.taskid, self.error_dir)
 

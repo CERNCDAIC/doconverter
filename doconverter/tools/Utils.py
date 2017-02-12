@@ -22,6 +22,17 @@ from doconverter.config import APPCONFIG
 
 class Utils(object):
     logger = None
+    server_name = None
+
+    @staticmethod
+    def get_server_name():
+        if not Utils.server_name:
+            Utils.server_name = Utils.getserver()
+        return Utils.server_name
+
+    @staticmethod
+    def set_server_name(name):
+        Utils.server_name = name
 
     @staticmethod
     def __getlogging():
@@ -50,6 +61,7 @@ class Utils(object):
             taskid = random.randint(0, 999999999)
         Utils.logger.info("new taskid generated %s" % taskid)
         return taskid
+
 
     @staticmethod
     def getserver():

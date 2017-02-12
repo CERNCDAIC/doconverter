@@ -30,7 +30,7 @@ class Task(object):
         self.urlresponse = urlresponse
         self.diresponse = diresponse
         self.extension = self.uploadedfile.split('.')[1].lower()
-        self.server = self.decidequeue(self.extension)
+        self.server = self.decidequeue(self.extension, self.converter)
         if not taskid:
             self.taskid = Utils.generate_taskid(self.server)
             logger.info('new taskid %s' % self.taskid)
@@ -84,21 +84,23 @@ class Task(object):
         :return: a task object with the given taskid
         """
         if not dir:
-            dir = Utils.getserver()
+            server = Utils.getserver()
+            dir = APPCONFIG[server]['tasks']
         if os.path.exists(os.path.join(dir, taskid)):
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
             return Task(data['uploadedfile'], data['converter'], data['urlresponse'], data['diresponse'], taskid, queue)
         return None
 
-    def decidequeue(self, fromext):
+    def decidequeue(self, fromext, converter):
         """Decide which queue should be used in order to work with a particular extension
 
         :return: queue (a server name, without extension)
         """
         possibles = []
         for server in APPCONFIG['servers']:
-            if fromext in APPCONFIG[server]['extensions_allowed']:
+            if fromext in APPCONFIG[server]['extensions_allowed'] and \
+                            converter in APPCONFIG[server]['extensions_allowed']:
                     possibles.append(server)
         return random.choice(possibles)
 

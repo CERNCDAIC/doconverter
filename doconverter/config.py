@@ -33,13 +33,13 @@ with open(FILELOGS) as jdata:
     config_logging = json.load(jdata)
 
 server = platform.uname()[1]
-if server.index('.') > 0:
+if server.find('.') != -1:
     server = server.split('.')[0]
 logging.config.dictConfig(config_logging)
 logger = logging.getLogger('doconverter-api')
 
 logger.debug("logger has been initialised")
-print(FILEINI)
+
 try:
     # Load configuration from file
     CONFIG = configparser.ConfigParser()
@@ -56,7 +56,7 @@ try:
                 APPCONFIG[computer] = {}
                 if CONFIG.has_option('default', computer):
                     APPCONFIG[computer]["extensions_allowed"] = CONFIG.get('default', computer).split(',')
-                    print("extensions_allowed {}".format(APPCONFIG[computer]["extensions_allowed"]))
+                    # print("extensions_allowed {}".format(APPCONFIG[computer]["extensions_allowed"]))
                 else:
                     logger.debug("{} has not allowed_extensions.".format(computer))
                     raise DoconverterException(
@@ -65,14 +65,14 @@ try:
                     logger.debug(os.path.join(APPCONFIG["prefix_dir"], computer, 'var') + " doesnt exist")
                     os.mkdir(os.path.join(APPCONFIG["prefix_dir"], computer, 'var'))
                 APPCONFIG[computer]['prefix_dir'] = os.path.join(APPCONFIG["prefix_dir"], computer, 'var')
-                print("extensions_allowed {}".format(APPCONFIG[computer]["prefix_dir"]))
+                # print("extensions_allowed {}".format(APPCONFIG[computer]["prefix_dir"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]['prefix_dir'], "tasks")):
                     pathname = os.path.join(APPCONFIG[computer]['prefix_dir'], "tasks")
                     logger.debug(pathname + " doesnt exist")
                     os.mkdir(pathname)
                 APPCONFIG[computer]["tasks"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "tasks")
-                print("extensions_allowed {}".format(APPCONFIG[computer]["tasks"]))
+                # print("extensions_allowed {}".format(APPCONFIG[computer]["tasks"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "uploadsresults")):
                     pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "uploadsresults"))
@@ -80,21 +80,21 @@ try:
                     os.mkdir(pathname)
                 APPCONFIG[computer]["uploadsresults"] = os.path.join(APPCONFIG[computer]["prefix_dir"],
                                                                      "uploadsresults")
-                print("extensions_allowed {}".format(APPCONFIG[computer]["uploadsresults"]))
+                # print("extensions_allowed {}".format(APPCONFIG[computer]["uploadsresults"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "error")):
                     pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "error"))
                     logger.debug("{} doesnt exist".format(pathname))
                     os.mkdir(pathname)
                 APPCONFIG[computer]["error"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "error")
-                print("extensions_allowed {}".format(APPCONFIG[computer]["error"]))
+                # print("extensions_allowed {}".format(APPCONFIG[computer]["error"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "success")):
                     pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "success"))
                     logger.debug("{} doesnt exist".format(pathname))
                     os.mkdir(pathname)
                 APPCONFIG[computer]["success"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "success")
-                print("extensions_allowed {}".format(APPCONFIG[computer]["success"]))
+                # print("extensions_allowed {}".format(APPCONFIG[computer]["success"]))
 
         if CONFIG.has_option('default', 'extensions_all'):
             APPCONFIG['extensions_all'] = CONFIG.get('default', 'extensions_all').split(',')
@@ -140,6 +140,7 @@ try:
                     logger.debug('converter %s is not properly defined, missing exe', converter)
                     raise DoconverterException(
                         "{} is not properly defined: {} is missing.".format(converter, 'exe'))
+                # print(APPCONFIG['converters'])
         if CONFIG.has_option('manager', 'stopper'):
             APPCONFIG['stopper'] = CONFIG.get('manager', 'stopper')
 

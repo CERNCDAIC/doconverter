@@ -28,7 +28,14 @@ setup(name='doconverter',
       test_suite="",
       requires=[
           'ConfigParser',
-          'flask.ext.restful',
+          'flask-restful',
           'flask',
+          'requests',
+          'psutil',
+          'Flask-SQLAlchemy',
+          'psycopg2',
+          'sphinx'
           ],
       )
+
+

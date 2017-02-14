@@ -26,7 +26,7 @@ setup(name='doconverter',
       packages=find_packages(),
       scripts=[],
       test_suite="",
-      requires=[
+      install_requires=[
           'ConfigParser',
           'flask-restful',
           'flask',

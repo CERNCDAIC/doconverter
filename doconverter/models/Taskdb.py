@@ -33,7 +33,7 @@ class Taskdb(db.Model):
     server = db.Column(db.String(64), nullable=False, primary_key=True)
     db.PrimaryKeyConstraint('server', 'taskid')
 
-    def __init__(self, extension, newfilename, fullocalpath, uploadedfile, taskid, urlresponse, converter):
+    def __init__(self, extension, newfilename, fullocalpath, uploadedfile, taskid, urlresponse, converter, server=None):
         self.extension = extension
         self.newfilename = newfilename
         self.taskid = taskid
@@ -41,7 +41,10 @@ class Taskdb(db.Model):
         self.fullocalpath = fullocalpath
         self.uploadedfile = uploadedfile
         self.urlresponse = urlresponse
-        self.server = Utils.getserver()
+        if not server:
+            self.server = Utils.getserver()
+        else:
+            self.server = server
         self.logdate = datetime.now()
 
     def fill(self, fields, _=None):

@@ -21,7 +21,7 @@ from doconverter.tools.Utils import Utils
 class Task(object):
     logger = None
 
-    def __init__(self, uploadedfile, converter, urlresponse, diresponse, taskid=None, queue=None):
+    def __init__(self, uploadedfile, converter, urlresponse, diresponse, server=None, taskid=None, queue=None):
         global logger
         logger = Utils.initlogger(queue)
         self.queue = queue
@@ -30,7 +30,10 @@ class Task(object):
         self.urlresponse = urlresponse
         self.diresponse = diresponse
         self.extension = self.uploadedfile.split('.')[1].lower()
-        self.server = self.decidequeue(self.extension, self.converter)
+        if not server:
+            self.server = self.decidequeue(self.extension, self.converter)
+        else:
+            self.server = server
         if not taskid:
             self.taskid = Utils.generate_taskid(self.server)
             logger.info('new taskid %s' % self.taskid)
@@ -71,7 +74,8 @@ class Task(object):
             'uploadedfile': self.uploadedfile,
             'fullocalpath': self.fullocalpath,
             'extension': self.extension,
-            'newfilename': self.newfilename
+            'newfilename': self.newfilename,
+            'server': self.server
         }
         with open(path, 'w') as outfile:
             json.dump(data, outfile)
@@ -89,7 +93,8 @@ class Task(object):
         if os.path.exists(os.path.join(dir, taskid)):
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
-            return Task(data['uploadedfile'], data['converter'], data['urlresponse'], data['diresponse'], taskid, queue)
+            return Task(data['uploadedfile'], data['converter'], data['urlresponse'],
+                        data['diresponse'], data['server'], taskid, queue)
         return None
 
     def decidequeue(self, fromext, converter):

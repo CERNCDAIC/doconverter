@@ -166,7 +166,7 @@ class Task(object):
         :return:
         """
         if not status:
-            status = 1 # sucess
+            status = 1  # success
         payload = {
             'directory': self.diresponse,
             'status': status,
@@ -186,7 +186,7 @@ class Task(object):
                                                                                                 response.text))
             logger.info('{} result submitted to callback'.format(self.taskid))
         else:
-            response = requests.post(self.urlresponse, data=payload, verify=False)
+            response = requests.post(self.urlresponse, data=payload, verify=APPCONFIG['ca_bundle'])
             if response.status_code >= 300:
                 logger.debug('{} error while sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
             else:

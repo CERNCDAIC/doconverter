@@ -12,7 +12,6 @@
 import win32com.client
 import os
 import time
-import random
 from doconverter.tools.Task import Task
 from doconverter.tools.Utils import Utils
 from doconverter.config import APPCONFIG

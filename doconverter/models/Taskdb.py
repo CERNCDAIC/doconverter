@@ -42,7 +42,7 @@ class Taskdb(db.Model):
         self.uploadedfile = uploadedfile
         self.urlresponse = urlresponse
         if not server:
-            self.server = Utils.getserver()
+            self.server = Utils.get_server_name()
         else:
             self.server = server
         self.logdate = datetime.now()
@@ -72,7 +72,7 @@ class Taskdb(db.Model):
         self.fullocalpath = fields.get('fullocalpath')
         if not self.fullocalpath:
             raise ValueError('fullocalpath name must be set')
-        self.server = Utils.getserver()
+        self.server = Utils.get_server_name()
         self.logdate = datetime.now()
 
     @classmethod
@@ -163,8 +163,7 @@ class TaskMapper(object):
         """
 
         taskdb = Taskdb(task.extension, task.newfilename, task.fullocalpath, task.uploadedfile,
-                        task.taskid, task.urlresponse, task.converter
-                        )
+                        task.taskid, task.urlresponse, task.converter, task.server)
         return TaskMapper.insert(taskdb)
 
     @classmethod

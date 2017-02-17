@@ -24,6 +24,7 @@ from doconverter.tools.MonitorConverter import MonitorConverter
 
 logger = None
 
+
 def logger_init():
     q = multiprocessing.Queue()
     # this is the handler for all log records
@@ -95,7 +96,6 @@ if __name__ == '__main__':
             logger.debug('sending task: {}'.format(results.sendtaskid))
             task.sendbyweb(task.convertedfile_exists(), 0)
         sys.exit(0)
-
 
     if not results.computer:
         server = Utils.get_server_name()

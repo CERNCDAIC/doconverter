@@ -175,12 +175,10 @@ class Task(object):
         }
         before = time.clock()
         if pathtofile and os.path.exists(pathtofile):
-            logger.info('Sending file 1')
             response = requests.post(self.urlresponse,
                                      data=payload,
                                      files={'content': open(pathtofile, 'rb')},
                                      verify=False)
-            logger.info('Sending file 2')
             if response.status_code >= 300:
                 raise requests.RequestException('{} Unexpected response from server: {}'.format(self.taskid,
                                                                                                 response.text))

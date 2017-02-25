@@ -84,16 +84,16 @@ class Neevia(object):
                                                                                    self.task.uploadedfile)))
         NDocConverter = win32com.client.Dispatch("Neevia.docConverter")
         if self.task.converter.upper() == 'PS':
-            logger.debug('{} convertion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PS'))
             NDocConverter.setParameter("DocumentOutputFormat", "POSTSCRIPT")
         elif self.task.converter.upper() == 'PDFA':
-            logger.debug('{} convertion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PDF/A'))
             NDocConverter.setParameter("DocumentOutputFormat", "PDF/A")
         else:
             NDocConverter.setParameter("DocumentOutputFormat", self.task.converter.upper())
-            logger.debug('{} convertion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PDF'))
         NDocConverter.setParameter("DocumentOutputFolder", self.success_dir)
         NDocConverter.setParameter("JobOption", "printer")

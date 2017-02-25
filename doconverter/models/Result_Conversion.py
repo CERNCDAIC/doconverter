@@ -13,6 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from doconverter.tools.Utils import Utils
 from datetime import datetime, timedelta
 from doconverter.models.extensions import db
+from sqlalchemy.dialects.postgresql import INET
 from doconverter.models.Taskdb import Taskdb  # noqa
 
 
@@ -44,11 +45,12 @@ class Result_Conversion(db.Model):
     # how long it took in secs
     duration = db.Column(db.Integer(), nullable=False)
     logdate = db.Column(db.DateTime, nullable=False)
+    remotehost = db.Column(INET, nullable=True)
     task = db.relationship('Taskdb', backref=db.backref('results',
                                                         cascade="all, delete, delete-orphan",
                                                         single_parent=True))
 
-    def __init__(self, from_ext=None, to_ext=None, taskid=None,
+    def __init__(self, from_ext=None, to_ext=None, taskid=None, remotehost=None,
                  converter=None, size_from=None, size_to=None, duration=None, error=None):
         self.from_ext = from_ext
         self.to_ext = to_ext
@@ -60,6 +62,7 @@ class Result_Conversion(db.Model):
         self.server = Utils.getserver()
         self.logdate = datetime.now()
         self.error = error
+        self.remotehost = remotehost
 
     def fill(self, fields, _=None):
         """
@@ -80,9 +83,10 @@ class Result_Conversion(db.Model):
         self.size_from = fields.get('size_from', -1)
         self.size_to = fields.get('size_to', -1)
         self.duration = fields.get('duration', -1)
-        self.server = Utils.getserver()
+        self.server = Utils.get_server_name()
         self.logdate = datetime.now()
         self.error = fields.get('error', None)
+        self.remotehost = fields.get('remotehost','0.0.0.0')
 
     @classmethod
     def create_new_result(cls, fields):

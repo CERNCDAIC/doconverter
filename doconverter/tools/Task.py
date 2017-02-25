@@ -21,7 +21,8 @@ from doconverter.tools.Utils import Utils
 class Task(object):
     logger = None
 
-    def __init__(self, uploadedfile, converter, urlresponse, diresponse, server=None, taskid=None, queue=None):
+    def __init__(self, uploadedfile, converter, urlresponse, diresponse, remotehost=None, server=None,
+                 taskid=None, queue=None):
         global logger
         logger = Utils.initlogger(queue)
         self.queue = queue
@@ -29,6 +30,10 @@ class Task(object):
         self.converter = converter
         self.urlresponse = urlresponse
         self.diresponse = diresponse
+        if remotehost:
+            self.remotehost = remotehost
+        else:
+            self.remotehost = '0.0.0.0'
         self.extension = self.uploadedfile.split('.')[1].lower()
         if not server:
             self.server = self.decidequeue(self.extension, self.converter)
@@ -36,7 +41,6 @@ class Task(object):
             self.server = server
         if not taskid:
             self.taskid = Utils.generate_taskid(self.server)
-            logger.info('new taskid %s' % self.taskid)
         else:
             self.taskid = taskid
         self.fullocalpath = os.path.join(APPCONFIG[self.server]['uploadsresults'], str(self.taskid))
@@ -75,11 +79,14 @@ class Task(object):
             'fullocalpath': self.fullocalpath,
             'extension': self.extension,
             'newfilename': self.newfilename,
-            'server': self.server
+            'server': self.server,
+            'remotehost': self.remotehost
         }
         with open(path, 'w') as outfile:
             json.dump(data, outfile)
 
+        logger.info('new taskid {} from remote_host: {} ext_from: {} ext_to: {}'.format(self.taskid, self.remotehost,
+                                                                                        self.extension, self.converter))
     @staticmethod
     def getaskbyid(taskid, queue=None, dir=None):
         """It generates a task object from a taskid.
@@ -93,8 +100,9 @@ class Task(object):
         if os.path.exists(os.path.join(dir, taskid)):
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
-            return Task(data['uploadedfile'], data['converter'], data['urlresponse'],
-                        data['diresponse'], data['server'], taskid, queue)
+            return Task(uploadedfile=data['uploadedfile'], converter=data['converter'], urlresponse=data['urlresponse'],
+                        diresponse=data['diresponse'], server=data['server'], remotehost=data['remotehost'],
+                        taskid=taskid, queue=queue)
         return None
 
     def decidequeue(self, fromext, converter):

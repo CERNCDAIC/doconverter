@@ -46,7 +46,7 @@ class UploadFile(Resource):
         if file and Utils.allowed_filextension(extension, APPCONFIG['extensions_all']):
             filename = secure_filename(file.filename)
             task = Task(converter=args["converter"], urlresponse=args["urlresponse"], diresponse=args["dirresponse"],
-                        uploadedfile=filename)
+                        uploadedfile=filename, remotehost=request.remote_addr)
             pathdir = task.fullocalpath
             file.save(os.path.join(pathdir, filename))
 

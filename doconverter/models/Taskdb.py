@@ -10,6 +10,7 @@
 
 import logging
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.dialects.postgresql import INET
 from doconverter.tools.Utils import Utils
 from datetime import datetime, timedelta
 from doconverter.models.extensions import db
@@ -31,9 +32,11 @@ class Taskdb(db.Model):
     converter = db.Column(db.String(16), nullable=False)
     logdate = db.Column(db.DateTime, nullable=False)
     server = db.Column(db.String(64), nullable=False, primary_key=True)
+    remotehost = db.Column(INET, nullable=True)
     db.PrimaryKeyConstraint('server', 'taskid')
 
-    def __init__(self, extension, newfilename, fullocalpath, uploadedfile, taskid, urlresponse, converter, server=None):
+    def __init__(self, extension, newfilename, fullocalpath, uploadedfile, taskid, urlresponse,
+                 remotehost, converter, server=None):
         self.extension = extension
         self.newfilename = newfilename
         self.taskid = taskid
@@ -46,6 +49,7 @@ class Taskdb(db.Model):
         else:
             self.server = server
         self.logdate = datetime.now()
+        self.remotehost = remotehost
 
     def fill(self, fields, _=None):
         """
@@ -74,10 +78,11 @@ class Taskdb(db.Model):
             raise ValueError('fullocalpath name must be set')
         self.server = Utils.get_server_name()
         self.logdate = datetime.now()
+        self.remotehost = fields.get('remotehost', '0.0.0.0')
 
     @classmethod
     def create_new_task(cls, fields):
-        task = Task(fields)
+        task = Task()
         task.fill(fields)
         return task
 
@@ -162,8 +167,9 @@ class TaskMapper(object):
             Insert the object given by param which is a Task file instead a Task db (row representation).
         """
 
-        taskdb = Taskdb(task.extension, task.newfilename, task.fullocalpath, task.uploadedfile,
-                        task.taskid, task.urlresponse, task.converter, task.server)
+        taskdb = Taskdb(extension=task.extension, newfilename=task.newfilename, fullocalpath=task.fullocalpath,
+                        uploadedfile=task.uploadedfile, taskid=task.taskid, urlresponse=task.urlresponse,
+                        converter=task.converter, server=task.server, remotehost=task.remotehost)
         return TaskMapper.insert(taskdb)
 
     @classmethod

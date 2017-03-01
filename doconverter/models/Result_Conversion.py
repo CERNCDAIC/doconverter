@@ -45,7 +45,8 @@ class Result_Conversion(db.Model):
     # how long it took in secs
     duration = db.Column(db.Integer(), nullable=False)
     logdate = db.Column(db.DateTime, nullable=False)
-    remotehost = db.Column(INET, nullable=True)
+    remotehost = db.Column(INET, nullable=False)
+    hashurl=db.Column(db.String(1024), nullable=True)
     task = db.relationship('Taskdb', backref=db.backref('results',
                                                         cascade="all, delete, delete-orphan",
                                                         single_parent=True))
@@ -87,6 +88,8 @@ class Result_Conversion(db.Model):
         self.logdate = datetime.now()
         self.error = fields.get('error', None)
         self.remotehost = fields.get('remotehost','0.0.0.0')
+        self.hashurl = fields.get(hash,'-1')
+
 
     @classmethod
     def create_new_result(cls, fields):

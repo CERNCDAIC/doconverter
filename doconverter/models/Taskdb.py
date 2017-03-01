@@ -9,6 +9,7 @@
 # or submit itself to any jurisdiction.
 
 import logging
+import traceback
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.dialects.postgresql import INET
 from doconverter.tools.Utils import Utils
@@ -32,7 +33,8 @@ class Taskdb(db.Model):
     converter = db.Column(db.String(16), nullable=False)
     logdate = db.Column(db.DateTime, nullable=False)
     server = db.Column(db.String(64), nullable=False, primary_key=True)
-    remotehost = db.Column(INET, nullable=True)
+    remotehost = db.Column(INET, nullable=False)
+
     db.PrimaryKeyConstraint('server', 'taskid')
 
     def __init__(self, extension, newfilename, fullocalpath, uploadedfile, taskid, urlresponse,
@@ -155,8 +157,8 @@ class TaskMapper(object):
         try:
             db.session.add(task)
             db.session.commit()
-        except Exception as ex:
-            logging.getLogger('doconverter-api').debug(ex)
+        except:
+            logging.getLogger('doconverter-api').debug(traceback.format_exc())
             db.session.rollback()
             return False
         return True
@@ -183,8 +185,8 @@ class TaskMapper(object):
             print(task)
             db.session.delete(task)
             db.session.commit()
-        except Exception as ex:
-            logging.getLogger('doconverter-api').debug(ex)
+        except:
+            logging.getLogger('doconverter-api').debug(traceback.format_exc())
             db.session.rollback()
             return False
         return True

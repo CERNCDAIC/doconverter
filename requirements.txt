@@ -2,6 +2,6 @@ requests
 flask
 flask-restful
 psutil
-Flask-SQLAlchemy
+Flask-SQLAlchemy==2.1
 psycopg2
 sphinx

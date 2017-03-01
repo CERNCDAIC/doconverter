@@ -30,7 +30,7 @@ class Taskdb(db.Model):
     uploadedfile = db.Column(db.String(128), nullable=False)
     taskid = db.Column(db.Integer(), nullable=False, primary_key=True)
     urlresponse = db.Column(db.String(256), nullable=False)
-    converter = db.Column(db.String(16), nullable=False)
+    converter = db.Column(db.String(256), nullable=False)
     logdate = db.Column(db.DateTime, nullable=False)
     server = db.Column(db.String(64), nullable=False, primary_key=True)
     remotehost = db.Column(INET, nullable=False)

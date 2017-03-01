@@ -30,6 +30,8 @@ class ConverterManager(multiprocessing.Process):
         logger = Utils.initlogger(queue)
         self.task = Task.getaskbyid(taskid, queue)
         self.converter_class = self.__find_converter()
+        print("AAAAAAAAAAAAAAAAAA")
+        print(self.converter_class)
         self.common_list = list_processes
         logger.debug('Working on {}'.format(self.task.taskid))
 
@@ -58,15 +60,14 @@ class ConverterManager(multiprocessing.Process):
                 self.task.movetosuccess()
                 totalsecs = round(after - before)
                 logger. \
-                    debug('task {} remote host: {} sucessful: file: {} size: {} KB from: {} to: {} size: {} KB in {} secs'.format(
-                        self.task.taskid,
-                        self.task.remotehost,
-                        self.task.uploadedfile,
-                        Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.uploadedfile)),
-                        self.task.extension,
-                        self.task.converter,
-                        Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.newfilename)),
-                        totalsecs))
+                    debug('task {} in server {}, remote host: {} sucessful: file: {} size: {} '
+                          'KB from: {} to: {} size: {} KB in {} secs'
+                          .format(self.task.taskid, self.task.server, self.task.remotehost, self.task.uploadedfile,
+                                  Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.uploadedfile)),
+                                  self.task.extension,
+                                  self.task.converter,
+                                  Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.newfilename)),
+                                  totalsecs))
                 if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
                                                             taskid=self.task.taskid, remotehost=self.task.remotehost,
                                                             size_from=Utils.getfilesizeinkb(
@@ -86,8 +87,9 @@ class ConverterManager(multiprocessing.Process):
                 self.task.movetoerror()
                 totalsecs = round(after - before)
                 logger\
-                    .debug('task {} remote host: {} failed: file: {} size: {} KB from: {} to: {} size: {} KB in {} secs'
-                           .format(self.task.taskid, self.task.remotehost, self.task.uploadedfile,
+                    .debug('task {} in server {}, remote host: {} failed: file: {} size: {} '
+                           'KB from: {} to: {} size: {} KB in {} secs'
+                           .format(self.task.taskid, self.server, self.task.remotehost, self.task.uploadedfile,
                                    Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.uploadedfile)),
                                    self.task.extension, self.task.converter, -1, -1))
                 if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
@@ -106,8 +108,9 @@ class ConverterManager(multiprocessing.Process):
         except DoconverterException as ex:
             logger.debug('DoconverterException {}'.format(ex))
             logger.\
-                debug('task {} remote host: {} failed: file: {} size: {} KB from: {} to: {} size: {} KB in {} secs'
-                      .format(self.task.taskid, self.task.remotehost, self.task.uploadedfile,
+                debug('task {} in server {}, remote host: {} failed: file: {} size: {} '
+                      'KB from: {} to: {} size: {} KB in {} secs'
+                      .format(self.task.taskid, self.server, self.task.remotehost, self.task.uploadedfile,
                               Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.uploadedfile)),
                               self.task.extension, self.task.converter, -1, -1))
             if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
@@ -126,8 +129,9 @@ class ConverterManager(multiprocessing.Process):
         except Exception as ex:
             logger.debug('Exception got {}. Stack trace: {} '.format(ex, traceback.print_exc()))
             logger\
-                .debug('task {} remote host: {} failed: file: {} size: {} KB from: {} to: {} size: {} KB in {} secs'
-                       .format(self.task.taskid, self.task.remotehost, self.task.uploadedfile,
+                .debug('task {} in server {}, remote host: {} failed: file: {} size: {} '
+                       'KB from: {} to: {} size: {} KB in {} secs'
+                       .format(self.task.taskid, self.server, self.task.remotehost, self.task.uploadedfile,
                                Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.uploadedfile)),
                                self.task.extension, self.task.converter, -1, -1))
             if Result_ConversionMapper.insert_dict(dict(from_ext=self.task.extension, to_ext=self.task.converter,
@@ -149,8 +153,9 @@ class ConverterManager(multiprocessing.Process):
             if os.path.exists(os.path.join(APPCONFIG[self.task.server]['tasks'], self.task.taskid)):
                 self.task.movetoerror()
                 logger\
-                    .debug('task {} remote host: {} failed: file: {} size: {} KB from: {} to: {} size: {} KB in {} secs'
-                           .format(self.task.taskid, self.task.remotehost, self.task.uploadedfile,
+                    .debug('task {} in server {} remote host: {} failed: file: {} size: {} '
+                           'KB from: {} to: {} size: {} KB in {} secs'
+                           .format(self.task.taskid, self.task.server, self.task.remotehost, self.task.uploadedfile,
                                    Utils.getfilesizeinkb(os.path.join(self.task.fullocalpath, self.task.uploadedfile)),
                                    self.task.extension, self.task.converter, -1, -1))
                 self.task.sendbyweb(None, status)

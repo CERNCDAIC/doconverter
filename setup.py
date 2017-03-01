@@ -32,7 +32,6 @@ setup(name='doconverter',
           'flask',
           'requests',
           'psutil',
-          'Flask-SQLAlchemy',
           'psycopg2',
           'sphinx'
           ],

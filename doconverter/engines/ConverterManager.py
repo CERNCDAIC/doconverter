@@ -30,8 +30,6 @@ class ConverterManager(multiprocessing.Process):
         logger = Utils.initlogger(queue)
         self.task = Task.getaskbyid(taskid, queue)
         self.converter_class = self.__find_converter()
-        print("AAAAAAAAAAAAAAAAAA")
-        print(self.converter_class)
         self.common_list = list_processes
         logger.debug('Working on {}'.format(self.task.taskid))
 

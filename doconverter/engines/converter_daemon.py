@@ -89,19 +89,20 @@ if __name__ == '__main__':
         mon.archive_olderthan(results.archive)
         sys.exit(0)
 
-    if results.sendtaskid:
-        logger.debug('retrieving task: {}'.format(results.sendtaskid))
-        task = Task.getaskbyid(results.sendtaskid, dir=APPCONFIG['success'])
-        if task and task.convertedfile_exists():
-            logger.debug('sending task: {}'.format(results.sendtaskid))
-            task.sendbyweb(task.convertedfile_exists(), 0)
-        sys.exit(0)
-
     if not results.computer:
         server = Utils.get_server_name()
     else:
         Utils.set_server_name(results.computer)
         server = Utils.get_server_name()
+
+    if results.sendtaskid:
+        logger.debug('retrieving task: {}'.format(results.sendtaskid))
+        task = Task.getaskbyid(results.sendtaskid, dir=APPCONFIG[server]['success'])
+        if task and task.convertedfile_exists():
+            logger.debug('sending task: {}'.format(results.sendtaskid))
+            task.sendbyweb(task.convertedfile_exists(), 0)
+        sys.exit(0)
+
 
     # check if we are alone
     if Utils.isprocess_running(os.path.basename(sys.argv[0]), os.path.basename(sys.executable).split('.')[0]) > 1:
@@ -145,7 +146,7 @@ if __name__ == '__main__':
             if task == -666:
                 continue
             logger.debug('task being added %s', list_processes)
-            job = ConverterManager(str(task), list_processes, q)
+            job = ConverterManager(str(task), server, list_processes, q)
             job.name = str(task)
             job.daemon = False
             processes.append(job)

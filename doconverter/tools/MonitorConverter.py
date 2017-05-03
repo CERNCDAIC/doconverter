@@ -45,6 +45,7 @@ class MonitorConverter:
         count = 0
         msg = []
         send = False
+        msg.append("Monitoring on server: {}".format(Utils.get_server_name()))
         if not os.path.exists(self.tasksdir):
             MonitorConverter.logger.debug('directory {} doesnt exist. Check cant be done.'.format(self.taskalert))
         else:

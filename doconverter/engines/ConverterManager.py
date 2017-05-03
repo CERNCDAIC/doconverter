@@ -23,12 +23,14 @@ from doconverter.engines.Neevia import Neevia  # noqa
 class ConverterManager(multiprocessing.Process):
     logger = None
 
-    def __init__(self, taskid, list_processes, queue):
+    def __init__(self, taskid, server, list_processes, queue):
         multiprocessing.Process.__init__(self)
         self.queue = queue
         global logger
         logger = Utils.initlogger(queue)
-        self.task = Task.getaskbyid(taskid, queue)
+        Utils.set_server_name(server)
+        self.server = server
+        self.task = Task.getaskbyid(taskid=taskid, queue=queue, dir=APPCONFIG[self.server]['tasks'])
         self.converter_class = self.__find_converter()
         self.common_list = list_processes
         logger.debug('Working on {}'.format(self.task.taskid))
@@ -45,7 +47,8 @@ class ConverterManager(multiprocessing.Process):
 
     def run(self):
         from doconverter.models.Result_Conversion import Result_ConversionMapper
-        converter = self.converter_class(self.task.taskid, self.queue)
+        Utils.set_server_name(self.server)
+        converter = self.converter_class(taskid=self.task.taskid, queue=self.queue)
         logger = Utils.initlogger(self.queue)
         status = -1
         before = None

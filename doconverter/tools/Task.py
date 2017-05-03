@@ -89,13 +89,15 @@ class Task(object):
                                                                                         self.extension, self.converter))
     @staticmethod
     def getaskbyid(taskid, queue=None, dir=None):
-        """It generates a task object from a taskid.
+        """Get Task by id
 
-        :param taskid - taskid of the task object
-        :return: a task object with the given taskid
+        :param taskid:
+        :param queue: in case of multiprocess logging
+        :param dir: in case of different worker node, processing tasks of node A from node B
+        :return:
         """
         if not dir:
-            server = Utils.getserver()
+            server = Utils.get_server_name()
             dir = APPCONFIG[server]['tasks']
         if os.path.exists(os.path.join(dir, taskid)):
             with open(os.path.join(dir, taskid)) as data_file:

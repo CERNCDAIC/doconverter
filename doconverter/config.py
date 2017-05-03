@@ -65,14 +65,14 @@ try:
                     logger.debug(os.path.join(APPCONFIG["prefix_dir"], computer, 'var') + " doesnt exist")
                     os.mkdir(os.path.join(APPCONFIG["prefix_dir"], computer, 'var'))
                 APPCONFIG[computer]['prefix_dir'] = os.path.join(APPCONFIG["prefix_dir"], computer, 'var')
-                # print("extensions_allowed {}".format(APPCONFIG[computer]["prefix_dir"]))
+                # print("prefix_dir {}".format(APPCONFIG[computer]["prefix_dir"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]['prefix_dir'], "tasks")):
                     pathname = os.path.join(APPCONFIG[computer]['prefix_dir'], "tasks")
                     logger.debug(pathname + " doesnt exist")
                     os.mkdir(pathname)
                 APPCONFIG[computer]["tasks"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "tasks")
-                # print("extensions_allowed {}".format(APPCONFIG[computer]["tasks"]))
+                # print("tasks {}".format(APPCONFIG[computer]["tasks"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "uploadsresults")):
                     pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "uploadsresults"))
@@ -80,21 +80,21 @@ try:
                     os.mkdir(pathname)
                 APPCONFIG[computer]["uploadsresults"] = os.path.join(APPCONFIG[computer]["prefix_dir"],
                                                                      "uploadsresults")
-                # print("extensions_allowed {}".format(APPCONFIG[computer]["uploadsresults"]))
+                # print("uploadsresults {}".format(APPCONFIG[computer]["uploadsresults"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "error")):
                     pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "error"))
                     logger.debug("{} doesnt exist".format(pathname))
                     os.mkdir(pathname)
                 APPCONFIG[computer]["error"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "error")
-                # print("extensions_allowed {}".format(APPCONFIG[computer]["error"]))
+                # print("error {}".format(APPCONFIG[computer]["error"]))
 
                 if not os.path.exists(os.path.join(APPCONFIG[computer]["prefix_dir"], "success")):
                     pathname = os.path.join(os.path.join(APPCONFIG[computer]["prefix_dir"], "success"))
                     logger.debug("{} doesnt exist".format(pathname))
                     os.mkdir(pathname)
                 APPCONFIG[computer]["success"] = os.path.join(APPCONFIG[computer]["prefix_dir"], "success")
-                # print("extensions_allowed {}".format(APPCONFIG[computer]["success"]))
+                # print("success {}".format(APPCONFIG[computer]["success"]))
                 if CONFIG.has_option('default', 'archival_dir'):
                     APPCONFIG['archival_dir'] = CONFIG.get('default', 'archival_dir')
                     if not os.path.exists(os.path.join(APPCONFIG['archival_dir'], computer, 'archive')):
@@ -142,8 +142,13 @@ try:
                     raise DoconverterException(
                         "{} is not properly defined: {} is missing.".format(converter, 'exe'))
                 # print(APPCONFIG['converters'])
+        else:
+            logger.debug('No converters defined, strange!')
         if CONFIG.has_option('manager', 'stopper'):
             APPCONFIG['stopper'] = CONFIG.get('manager', 'stopper')
+    else:
+        logger.debug('Manager section is not defined. Strange!')
+
 
     if CONFIG.has_section('monitor'):
         if CONFIG.has_option('monitor', 'emails'):

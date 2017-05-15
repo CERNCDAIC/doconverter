@@ -3,12 +3,14 @@ REM Script to rotate a file in a dayly or monthly basis
 REM It expects three arguments:
 REM   1. logfile: file to be rotated. Full path.
 REM	  2. Interval: either DAY or MONTH
-REM	  3. Number of processes to start doconverter
+REM	  3. Number of processes
 REM   4. EXE normally python.exe
 REM   5. Location of the py file to be executed
 REM   6. Virtual environment if any.
 REM	  Example:
 REM   %0 .\logrotation_doconverter.bat  c:\doconverter\logs\api.log DAY 2 python.exe G:\Services\conversion\production-test02\doconverterwww\project\doconverter\engines\converter_daemon.py converter3464
+
+
 REM Author: Ruben Gaspar rgaspar@cern.ch
 
 SETLOCAL ENABLEEXTENSIONS
@@ -101,12 +103,15 @@ for /f  %%i in ('%SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'
 echo Number of matchesA is: %VAR% >>%log%
 IF /I "%VAR%" GEQ "1" (
 	echo Already appA running>>%log%
-	echo "Stopping converter">>%log%
-	IF "M%CONTAINER%"=="M" (
-			cmd /K "%EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+	if NOT EXIST %FULLNEWFILE% (
+		echo "Stopping converter">>%log%
+		IF "M%CONTAINER%"=="M" (
+				cmd /K "%EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+		) ELSE (
+				cmd /K "%WITHCONTAINER% & %EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+		)
 	) ELSE (
-			cmd /K "%WITHCONTAINER% & %EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+		echo "FILE to be rotated already exist. Nothing to do."
 	)
-
 ) ELSE EXIT /B 0
 

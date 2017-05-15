@@ -18,6 +18,7 @@ import platform
 from email.mime.text import MIMEText
 from logging.handlers import QueueHandler
 from doconverter.config import APPCONFIG
+from datetime import datetime
 
 
 class Utils(object):
@@ -199,4 +200,5 @@ class Utils(object):
         finally:
             s.quit()
         return True
+
 

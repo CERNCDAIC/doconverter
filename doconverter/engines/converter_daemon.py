@@ -14,6 +14,7 @@ import sys
 import os
 import multiprocessing
 from logging.handlers import QueueListener
+from datetime import datetime
 import argparse
 from doconverter.config import APPCONFIG
 from doconverter.tools.Utils import Utils
@@ -37,6 +38,21 @@ def logger_init():
     logger = logging.getLogger('doconverter-api')
 
     logger.addHandler(handler)
+
+    for h in logger.handlers:
+        if isinstance(h, logging.handlers.TimedRotatingFileHandler):
+            print("ZZZZZZZZZZZZZZZZ {}", h.baseFilename)
+            h.doRollover()
+            #h.baseFilename = r"c:\doconverter\logs\api_test1.log"
+            break
+            #Utils.filelog_rotation(h.baseFilename, oldtime, typerotation='day')
+    #    else:
+    #       print('NO')
+    #time.sleep(60)
+    #logrotation_handler = logging.handlers.RotatingFileHandler(h.baseFilename, backupCount=50)
+    #logger.addHandler(logrotation_handler)
+    #logger.handlers[-1].doRollover()
+
     return queue_listener, q
 
 
@@ -120,10 +136,10 @@ if __name__ == '__main__':
 
     logger.debug('number of processes %s', len(list_processes))
     while not os.path.exists(APPCONFIG['stopper']):
+        oldtime = datetime.today()
         tasks = Utils.sortfilesbytime(APPCONFIG[server]['tasks'])
         logger.debug('list of tasks %s', tasks)
         logger.debug('number of jobs %s', len(processes))
-
         if not tasks:
             time.sleep(timetosleep)
             continue

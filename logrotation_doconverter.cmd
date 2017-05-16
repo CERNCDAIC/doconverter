@@ -21,9 +21,14 @@ set /A FILE_NOT_FOUND=-2
 set LOGFILE=%~1
 set INTERVAL=%~2
 set PROCESSES=%~3
-set EXE=%~4
-set ARGUMENT=%~5
-set CONTAINER=%~6
+REM Limitations with number of characters of a shedule task
+REM We need to provide a fix argument and container
+::set EXE=%~4
+set EXE=python.exe
+::set ARGUMENT=%~5
+set ARGUMENT=c:\doconverter\doconverter\doconverter\engines\converter_daemon.py
+::set CONTAINER=%~6
+set CONTAINER=doconverter
 :: this is just the name of my script
 set ME=%~n0
 set LOGGING_DIR="%windir%\TEMP"
@@ -92,8 +97,9 @@ For %%A in ("%EXE%") do (
 :: define new file log
 set NEWFILE=%FILENAME%%CDATE%%EXTFILE%
 set FULLNEWFILE=%DIRECTORY%%NEWFILE%
-echo %LOGFILE% %DIRECTORY% %FILE% %FILENAME% %EXTFILE% %NEWFILE% %FULLNEWFILE%>>%log%
-echo %FILEARGUMENT%>>%log%
+echo logfile: %LOGFILE% directory: %DIRECTORY% file: %FILE% filename: %FILENAME% extfile: %EXTFILE%>>%log%
+echo newfile: %NEWFILE% fullnewfiles: %FULLNEWFILE% argument: %ARGUMENT%>>%log%
+echo fileargument: %FILEARGUMENT% Container: %CONTAINER%>>%log%
 
 echo "Checking for exe and argument">>%log%
 set VAR=1
@@ -111,7 +117,9 @@ IF /I "%VAR%" GEQ "1" (
 				cmd /K "%WITHCONTAINER% & %EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
 		)
 	) ELSE (
-		echo "FILE to be rotated already exist. Nothing to do."
+		echo FILE to be rotated already exist. Nothing to do.>>%log%
 	)
 ) ELSE EXIT /B 0
+
+
 

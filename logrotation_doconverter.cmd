@@ -1,14 +1,13 @@
-@echo off
+@echo on
 REM Script to rotate a file in a dayly or monthly basis
 REM It expects three arguments:
 REM   1. logfile: file to be rotated. Full path.
 REM	  2. Interval: either DAY or MONTH
 REM	  3. Number of processes
-REM   4. EXE normally python.exe
-REM   5. Location of the py file to be executed
-REM   6. Virtual environment if any.
+REM   4. Virtual environment if any.
+REM   5. Location of the py file to be executed. Passed now as a fixed string due to Schedule task limitations with number of characters
 REM	  Example:
-REM   %0 .\logrotation_doconverter.bat  c:\doconverter\logs\api.log DAY 2 python.exe G:\Services\conversion\production-test02\doconverterwww\project\doconverter\engines\converter_daemon.py converter3464
+REM   %0 .\logrotation_doconverter.bat  c:\doconverter\logs\api.log DAY 2 docconverter
 
 
 REM Author: Ruben Gaspar rgaspar@cern.ch
@@ -18,17 +17,16 @@ SETLOCAL ENABLEEXTENSIONS
 set /A NOT_DEFINED_VAR=-1
 set /A FILE_NOT_FOUND=-2
 
+set EXE=python.exe
 set LOGFILE=%~1
 set INTERVAL=%~2
 set PROCESSES=%~3
+set CONTAINER=%~4
+
 REM Limitations with number of characters of a shedule task
 REM We need to provide a fix argument and container
-::set EXE=%~4
-set EXE=python.exe
 ::set ARGUMENT=%~5
 set ARGUMENT=c:\doconverter\doconverter\doconverter\engines\converter_daemon.py
-::set CONTAINER=%~6
-set CONTAINER=doconverter
 :: this is just the name of my script
 set ME=%~n0
 set LOGGING_DIR="%windir%\TEMP"
@@ -102,24 +100,25 @@ echo newfile: %NEWFILE% fullnewfiles: %FULLNEWFILE% argument: %ARGUMENT%>>%log%
 echo fileargument: %FILEARGUMENT% Container: %CONTAINER%>>%log%
 
 echo "Checking for exe and argument">>%log%
-set VAR=1
+set VAR=0
 echo %SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'" get ProcessID^, Commandline ^| %SystemRoot%\system32\findstr.exe /I /R /N /C:"%EXENOEXT% *%FILEARGUMENT%" ^| %SystemRoot%\system32\find.exe /i "%FILEARGUMENT%" /c >> %log%
 for /f  %%i in ('%SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'" get ProcessID^, Commandline ^| %SystemRoot%\system32\findstr.exe /I /R /N /C:"%EXENOEXT% *.*%FILEARGUMENT%" ^| %SystemRoot%\system32\find.exe /i "%FILEARGUMENT%" /c') do set VAR=%%i
 
-echo Number of matchesA is: %VAR% >>%log%
+echo Number of matchesA is: %VAR%>>%log%
 IF /I "%VAR%" GEQ "1" (
 	echo Already appA running>>%log%
 	if NOT EXIST %FULLNEWFILE% (
-		echo "Stopping converter">>%log%
+		echo Stopping converter>>%log%
 		IF "M%CONTAINER%"=="M" (
-				cmd /K "%EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+				start cmd /C "%EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
 		) ELSE (
-				cmd /K "%WITHCONTAINER% & %EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+				start cmd /C "%WITHCONTAINER% & %EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
 		)
+		echo Process dispatched>>%log%
 	) ELSE (
 		echo FILE to be rotated already exist. Nothing to do.>>%log%
 	)
-) ELSE EXIT /B 0
-
+	
+)
 
 

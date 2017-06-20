@@ -12,6 +12,7 @@
 import win32com.client
 import os
 import time
+import random
 from doconverter.tools.Task import Task
 from doconverter.tools.Utils import Utils
 from doconverter.config import APPCONFIG
@@ -99,7 +100,24 @@ class Neevia(object):
         NDocConverter.setParameter("JobOption", "printer")
 
         # sleep randomly to reduce likelihood of -3 Invalid input folder error
-        # time.sleep(random.randint(0, 15))
+        size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
+        while True:
+            time.sleep(1)
+            if os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size > size_file:
+                size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
+                time.sleep(random.randint(0, 15))
+                logger.debug('file: {} still being copied size is {} bytes'.format(
+                    os.path.join(self.task.fullocalpath, self.task.uploadedfile),
+                    size_file))
+            elif os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size == size_file:
+                logger.debug('file: {} got stationary size: {} bytes'.format(
+                    os.path.join(self.task.fullocalpath, self.task.uploadedfile),
+                    size_file))
+                break
+            else:
+                logger.debug('file: {} must have been fully copied, leaving loop'.format(
+                    os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
+
         self.__submit_return_check(NDocConverter.SubmitFile(os.path.join(self.task.fullocalpath,
                                                                          self.task.uploadedfile), ''))
 

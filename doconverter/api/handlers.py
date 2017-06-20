@@ -18,8 +18,8 @@ from doconverter.api.Stats import Stats
 
 app = Flask(__name__)
 app.debug = True
-# limit the maximum size of files to be upload to 16 MB
-app.config['MAX_CONTENT_LENGTH'] = 400 * 1024 * 1024
+# limit the maximum size of files to be upload to 400 MB
+app.config['MAX_CONTENT_LENGTH'] = 2000 * 1024 * 1024
 
 api = Api(app)
 

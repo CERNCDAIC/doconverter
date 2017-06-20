@@ -1,4 +1,4 @@
-@echo on
+@echo off
 REM Script to rotate a file in a dayly or monthly basis
 REM It expects three arguments:
 REM   1. logfile: file to be rotated. Full path.
@@ -7,7 +7,7 @@ REM	  3. Number of processes
 REM   4. Virtual environment if any.
 REM   5. Location of the py file to be executed. Passed now as a fixed string due to Schedule task limitations with number of characters
 REM	  Example:
-REM   %0 .\logrotation_doconverter.bat  c:\doconverter\logs\api.log DAY 2 docconverter
+REM   %0 .\logrotation_doconverter.bat  c:\doconverter\logs\api.log DAY 2 doconverter
 
 
 REM Author: Ruben Gaspar rgaspar@cern.ch

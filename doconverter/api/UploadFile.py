@@ -56,4 +56,4 @@ class UploadFile(Resource):
         else:
             UploadFile.logger.debug('<{}> is not permitted'.format(extension))
             return {'post': 'Extension is not permitted!'}, 400
-        return {'post': 'file was uploaded'}, 200
+        return {'post': 'ok-[{}]'.format(task.taskid)}, 200

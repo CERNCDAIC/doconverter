@@ -37,8 +37,8 @@ class ConverterManager(multiprocessing.Process):
 
     def __find_converter(self):
         for converter in APPCONFIG['converters']:
-            if self.task.converter in APPCONFIG['converters'][converter]['output_allowed'] and \
-                            self.task.extension in APPCONFIG['converters'][converter]['extensions_allowed']:
+            if self.task.converter.split('_')[0] in APPCONFIG['converters'][converter]['output_allowed'] and \
+                    self.task.extension in APPCONFIG['converters'][converter]['extensions_allowed']:
                 logger.debug('converter class for reflection: %s' % globals()[converter])
                 return globals()[converter]
         raise DoconverterException(

@@ -52,6 +52,8 @@ def format_conversion(extension=None):
         available.remove('ps')
     if extension in ['png', 'jpg']:
         available.remove('pdfa')
+    if extension in ['pdf', 'pdfa']:
+        available = ['thumb_200_200_150_150', 'thumb','thumb_400_400_150_150']
     return random.choice(available)
 
 
@@ -74,6 +76,7 @@ def send_by_web(filename, dict):
         'dirresponse': dict['diresponse'],
         'urlresponse': dict['url_response']
     }
+    print(payload)
     try:
         r = requests.post(dict['url'], files=file, data=payload, verify=APPCONFIG['ca_bundle'])
         print(r.text)

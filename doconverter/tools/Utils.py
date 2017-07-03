@@ -15,6 +15,7 @@ import logging
 import psutil
 import smtplib
 import platform
+import re
 from email.mime.text import MIMEText
 from logging.handlers import QueueHandler
 from doconverter.config import APPCONFIG
@@ -201,4 +202,32 @@ class Utils(object):
             s.quit()
         return True
 
+    @staticmethod
+    def getthumbnailsettings(converter):
+        '''
 
+        :param converter: it's the desired output of a conversion e.g. thumb, pdf, pdfa
+        :return: a tupple with image resolution (dpi) and size (pixels) (imgresh, imgresv, imgheight, imgwidth)
+        '''
+
+        if not converter:
+            return ()
+        Utils.__getlogging()
+        Utils.logger.debug('converter is {}'.format(converter))
+        dpi_res = ('72x72','100x100','150x150','200x200','300x300','400x400','600x600','1200x1200')
+        # defaults
+        imgresh = 300
+        imgresv = 300
+        imgheight = 200
+        imgwidth = 200
+        m = re.match(r'thumb_(\d*)_(\d*)_(\d*)_(\d*)', converter, re.M | re.I)
+        if m and len(m.groups()) == 4:
+            imgresh = int(m.group(1))
+            imgresv = int(m.group(2))
+            imgheight = int(m.group(3))
+            imgwidth = int(m.group(4))
+
+
+        Utils.logger.debug('Following dpi: imgresh: {} imgresv {} and dimensions: imgheight {} imgwidth {}'
+                           .format(imgresh, imgresv, imgheight, imgwidth))
+        return (imgresh, imgresv, imgheight, imgwidth)

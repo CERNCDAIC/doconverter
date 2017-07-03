@@ -31,8 +31,8 @@ class Result_Conversion(db.Model):
                       {'schema': 'doconverter'})
 
     id = db.Column(db.Integer, primary_key=True)
-    from_ext = db.Column(db.String(16), nullable=False)
-    to_ext = db.Column(db.String(16), nullable=False)
+    from_ext = db.Column(db.String(64), nullable=False)
+    to_ext = db.Column(db.String(64), nullable=False)
     taskid = db.Column(db.Integer(), nullable=False)  # db.ForeignKey('doconverter.task.taskid', onupdate='cascade'))
 
     # converter engine

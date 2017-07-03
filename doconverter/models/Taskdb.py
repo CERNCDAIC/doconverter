@@ -24,7 +24,7 @@ class Taskdb(db.Model):
                       db.Index('converterextension_col', 'converter', 'extension'),
                       {'schema': 'doconverter', 'extend_existing': True})
 
-    extension = db.Column(db.String(16), nullable=False)
+    extension = db.Column(db.String(64), nullable=False)
     newfilename = db.Column(db.String(128), nullable=False)
     fullocalpath = db.Column(db.String(256), nullable=False)
     uploadedfile = db.Column(db.String(128), nullable=False)

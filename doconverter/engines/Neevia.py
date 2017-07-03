@@ -92,6 +92,15 @@ class Neevia(object):
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PDF/A'))
             NDocConverter.setParameter("DocumentOutputFormat", "PDF/A")
+        elif self.task.converter.upper().startswith('THUMB'):
+            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+                                                                    'PNG'))
+            NDocConverter.setParameter("DocumentOutputFormat", "PNG")
+            (imgresh, imgresv, imgheight, imgwidth)= Utils.getthumbnailsettings(self.task.converter)
+            NDocConverter.setParameter('ImgHeight', imgheight)
+            NDocConverter.setParameter('ImgWidth', imgwidth)
+            NDocConverter.setParameter('ImgResH', imgresh)
+            NDocConverter.setParameter('ImgResV',imgresv)
         else:
             NDocConverter.setParameter("DocumentOutputFormat", self.task.converter.upper())
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,

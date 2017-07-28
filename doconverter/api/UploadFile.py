@@ -34,11 +34,15 @@ class UploadFile(Resource):
     def post(self):
         UploadFile.logger.debug("post begin")
         args = self.reqparse_post.parse_args()
+        UploadFile.logger.debug("post begin2")
         if 'uploadedfile' not in request.files:
             return {'post': 'no file sent!'}, 400
+        UploadFile.logger.debug("post begin3")
         file = request.files['uploadedfile']
+        UploadFile.logger.debug("post begin4")
         # if user does not select file, browser also
         # submit a empty part without filename
+        UploadFile.logger.debug("post begin5")
         if file.filename == '':
             return {'post': 'file is empty!'}, 400
         UploadFile.logger.debug('filename is %s', file.filename)

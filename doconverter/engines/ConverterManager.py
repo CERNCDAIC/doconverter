@@ -33,7 +33,12 @@ class ConverterManager(multiprocessing.Process):
         self.task = Task.getaskbyid(taskid=taskid, queue=queue, dir=APPCONFIG[self.server]['tasks'])
         self.converter_class = self.__find_converter()
         self.common_list = list_processes
-        logger.debug('Working on {}'.format(self.task.taskid))
+        logger.debug('Working on taskid {} from remote_host: {} ext_from: {} ext_to: {}'.format(self.task.taskid,
+                                                                                               self.task.remotehost,
+                                                                                               self.task.extension,
+                                                                                               self.task.converter))
+
+
 
     def __find_converter(self):
         for converter in APPCONFIG['converters']:

@@ -38,4 +38,5 @@ api.add_resource(MonitorWWW, '/doconverter/api/v1.0/monitor')
 api.add_resource(ReceivedFile, '/doconverter/api/v1.0/received')
 api.add_resource(Stats, '/doconverter/api/v1.0/stats/<int:report>')
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+# app.run(host='0.0.0.0', port=8080)
+    app.run(debug=True)

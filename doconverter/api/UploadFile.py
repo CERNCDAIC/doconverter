@@ -46,7 +46,7 @@ class UploadFile(Resource):
         if file.filename == '':
             return {'post': 'file is empty!'}, 400
         UploadFile.logger.debug('filename is %s', file.filename)
-        extension = file.filename.split('.')[1]
+        extension = file.filename.split('.')[-1]
         if file and Utils.allowed_filextension(extension, APPCONFIG['extensions_all']):
             filename = secure_filename(file.filename)
             task = Task(converter=args["converter"], urlresponse=args["urlresponse"], diresponse=args["dirresponse"],

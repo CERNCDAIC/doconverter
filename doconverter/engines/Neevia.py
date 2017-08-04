@@ -84,6 +84,8 @@ class Neevia(object):
                                                                       os.path.join(self.task.fullocalpath,
                                                                                    self.task.uploadedfile)))
         NDocConverter = win32com.client.Dispatch("Neevia.docConverter")
+        # TOPNG will provide a zip file
+        expected_file = self.task.newfilename
         if self.task.converter.upper() == 'PS':
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PS'))
@@ -96,11 +98,23 @@ class Neevia(object):
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PNG'))
             NDocConverter.setParameter("DocumentOutputFormat", "PNG")
-            (imgresh, imgresv, imgheight, imgwidth)= Utils.getthumbnailsettings(self.task.converter)
+            (imgresh, imgresv, imgheight, imgwidth)= Utils.getresolutionsettings(self.task.converter)
             NDocConverter.setParameter('ImgHeight', imgheight)
             NDocConverter.setParameter('ImgWidth', imgwidth)
             NDocConverter.setParameter('ImgResH', imgresh)
             NDocConverter.setParameter('ImgResV',imgresv)
+        elif self.task.converter.upper().startswith('TOPNG'):
+            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
+                                                                    'PNG'))
+            NDocConverter.setParameter("DocumentOutputFormat", "PNG")
+            (imgresh, imgresv, imgheight, imgwidth) = Utils.getresolutionsettings(self.task.converter)
+            NDocConverter.setParameter('ImgHeight', imgheight)
+            NDocConverter.setParameter('ImgWidth', imgwidth)
+            if imgresh != 0 and imgresv != 0:
+                NDocConverter.setParameter('ImgResH', imgresh)
+                NDocConverter.setParameter('ImgResV', imgresv)
+            # At least it should be one png file
+            expected_file = '{}1.png'.format(self.task.uploadedfile.split('.')[0])
         else:
             NDocConverter.setParameter("DocumentOutputFormat", self.task.converter.upper())
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
@@ -142,19 +156,24 @@ class Neevia(object):
                     continue
             except DoconverterException:
                 for x in range(0, 30):
-                    if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
+                    if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)):
+                        if self.task.converter.upper().startswith('TOPNG'):
+                            Utils.createzipfile(fromwhere, '*.png', finalzipfile)
                         return 0
                     time.sleep(1)
                 raise
             except:
                 for x in range(0, 30):
-                    if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
+                    if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)):
+                        if self.task.converter.upper().startswith('TOPNG'):
+                            Utils.createzipfile(fromwhere, '*.png', finalzipfile)
                         return 0
                     time.sleep(1)
                 raise
             else:
                 for x in range(0, 60):
-                    if os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
+                    if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)) \
+                            and not self.task.converter.upper().startswith('TOPNG'):
                         return 0
                     time.sleep(1)
                 if not os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
@@ -162,5 +181,5 @@ class Neevia(object):
                         self.task.taskid,
                         os.path.join(
                             self.task.fullocalpath,
-                            self.task.newfilename), status))
+                            expected_file), status))
                 return status

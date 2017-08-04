@@ -16,6 +16,8 @@ import psutil
 import smtplib
 import platform
 import re
+import fnmatch
+import zipfile
 from email.mime.text import MIMEText
 from logging.handlers import QueueHandler
 from doconverter.config import APPCONFIG
@@ -203,7 +205,7 @@ class Utils(object):
         return True
 
     @staticmethod
-    def getthumbnailsettings(converter):
+    def getresolutionsettings(converter):
         '''
 
         :param converter: it's the desired output of a conversion e.g. thumb, pdf, pdfa
@@ -220,14 +222,24 @@ class Utils(object):
         imgresv = 300
         imgheight = 200
         imgwidth = 200
-        m = re.match(r'thumb_(\d*)_(\d*)_(\d*)_(\d*)', converter, re.M | re.I)
-        if m and len(m.groups()) == 4:
-            imgresh = int(m.group(1))
-            imgresv = int(m.group(2))
-            imgheight = int(m.group(3))
-            imgwidth = int(m.group(4))
-
-
+        m = re.match(r'(thumb|topng)_(\d*)_(\d*)_(\d*)_(\d*)', converter, re.M | re.I)
+        if m and len(m.groups()) == 5:
+            imgresh = int(m.group(2))
+            imgresv = int(m.group(3))
+            imgheight = int(m.group(4))
+            imgwidth = int(m.group(5))
+        # Needs to be to png, dimensions not set
+        if m and len(m.groups()) == 3 and m.groups(1) == 'topng':
+            imgresh = int(m.groups(2))
+            imgresv = int(m.groups(3))
+            imgheight = 0
+            imgwidth = 0
         Utils.logger.debug('Following dpi: imgresh: {} imgresv {} and dimensions: imgheight {} imgwidth {}'
                            .format(imgresh, imgresv, imgheight, imgwidth))
         return (imgresh, imgresv, imgheight, imgwidth)
+
+    @staticmethod
+    def createzipfile(fromwhere, pattern, finalzipfile):
+        result = fnmatch.filter(os.listdir(fromwhere), pattern)
+        for f in result:
+            print(f)

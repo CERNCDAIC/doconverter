@@ -50,6 +50,9 @@ class Task(object):
         elif converter.startswith('thumb'):
             # Neevia converter adds a number to each page of the document converted to PNG
             self.newfilename = '{}1.png'.format(self.uploadedfile.split('.')[0])
+        elif converter.startswith('topng'):
+            # Neevia converter adds a number to each page of the document converted to PNG, result will be compressed
+            self.newfilename = '{}.zip'.format(self.uploadedfile.split('.')[0])
         else:
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], self.converter)
         logger.info('%s newfilename is %s' % (self.taskid, self.newfilename))
@@ -118,7 +121,7 @@ class Task(object):
         possibles = []
         for server in APPCONFIG['servers']:
             if fromext in APPCONFIG[server]['extensions_allowed'] and \
-                    (converter in APPCONFIG[server]['extensions_allowed'] or converter.startswith('thumb')):
+                    converter.split('_')[0] in APPCONFIG[server]['extensions_allowed']:
                     possibles.append(server)
         return random.choice(possibles)
 

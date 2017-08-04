@@ -41,18 +41,8 @@ def logger_init():
 
     for h in logger.handlers:
         if isinstance(h, logging.handlers.TimedRotatingFileHandler):
-            print("ZZZZZZZZZZZZZZZZ {}", h.baseFilename)
             h.doRollover()
-            #h.baseFilename = r"c:\doconverter\logs\api_test1.log"
             break
-            #Utils.filelog_rotation(h.baseFilename, oldtime, typerotation='day')
-    #    else:
-    #       print('NO')
-    #time.sleep(60)
-    #logrotation_handler = logging.handlers.RotatingFileHandler(h.baseFilename, backupCount=50)
-    #logger.addHandler(logrotation_handler)
-    #logger.handlers[-1].doRollover()
-
     return queue_listener, q
 
 

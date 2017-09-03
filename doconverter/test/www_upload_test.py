@@ -53,7 +53,10 @@ def format_conversion(extension=None):
     if extension in ['png', 'jpg']:
         available.remove('pdfa')
     if extension in ['pdf', 'pdfa']:
-        available = ['thumb_200_200_150_150', 'thumb','thumb_400_400_150_150']
+        available.extend(['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150', 'toimg_200_200', 'toimg',
+                          'toimg_400_400'])
+        # available = ['toimg_200_200', 'toimg', 'toimg_400_400']
+        # available = ['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150' ]
     return random.choice(available)
 
 
@@ -65,16 +68,53 @@ def send_by_web(filename, dict):
     '''
 
     print('working with file %s ' % filename)
-    m = re.match(r'.*\.(\w+)', filename)
+    m = re.match(r'.*\.(\w+)$', filename)
     extension = None
     if m.groups():
         extension = m.group(1)
     fin = open(filename, 'rb')
     file = {'uploadedfile': fin}
+    converter_final = format_conversion(extension)
+    converter_options = ''
+
+    if converter_final.startswith('thumb') or converter_final.startswith('toimg'):
+        m = re.match(r'(thumb|toimg)_(\d*)_(\d*)_(\d*)_(\d*)', converter_final, re.M | re.I)
+        if m and len(m.groups()) == 5:
+            imgresh = int(m.group(2))
+            imgresv = int(m.group(3))
+            imgheight = int(m.group(4))
+            imgwidth = int(m.group(5))
+            converter_final = m.group(1)
+            converter_options = 'imgresh={}:imgresv={}:imgheight={}:imgwidth={}'.format(imgresh, imgresh, imgheight,
+                                                                                        imgwidth)
+        m = re.match(r'(thumb|toimg)_(\d*)_(\d*)', converter_final, re.M | re.I)
+        if m and len(m.groups()) == 3:
+            imgresh = int(m.group(2))
+            imgresv = int(m.group(3))
+            converter_final = m.group(1)
+            if converter_final == 'thumb':
+                imgheight = 200
+                imgwidth = 200
+                converter_options = 'imgresh={}:imgresv={}:imgheight={}:imgwidth={}'.format(imgresh, imgresv, imgheight,
+                                                                                            imgwidth)
+            else:
+                converter_options = 'imgresh={}:imgresv={}'.format(imgresh, imgresh)
+    # in case of a word document ask to hide or not comments
+    if extension in ['doc', 'docx']:
+        if random.choice([0, 1]):
+            converter_options = 'hidedocumentrevisions=true'
+        else:
+            converter_options = 'hidehocumentrevisions=false'
+    if converter_final.startswith('toimg'):
+        if converter_options:
+            converter_options = converter_options + ":typeofimg=" + random.choice(['jpeg', 'BMP', 'tiff', 'PNG'])
+        else:
+            converter_options = "typeofimg=" + random.choice(['Jpeg', 'BMP', 'TiFF', 'PNG'])
     payload = {
-        'converter': format_conversion(extension),
+        'converter': converter_final,
         'dirresponse': dict['diresponse'],
-        'urlresponse': dict['url_response']
+        'urlresponse': dict['url_response'],
+        'options': converter_options
     }
     print(payload)
     try:

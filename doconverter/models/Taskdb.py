@@ -10,6 +10,7 @@
 
 import logging
 import traceback
+import hashlib
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.dialects.postgresql import INET
 from doconverter.tools.Utils import Utils
@@ -28,23 +29,27 @@ class Taskdb(db.Model):
     newfilename = db.Column(db.String(128), nullable=False)
     fullocalpath = db.Column(db.String(256), nullable=False)
     uploadedfile = db.Column(db.String(128), nullable=False)
+    uploadedfilehash = db.Column(db.String(128), nullable=False, primary_key=True)
     taskid = db.Column(db.Integer(), nullable=False, primary_key=True)
     urlresponse = db.Column(db.String(256), nullable=False)
     converter = db.Column(db.String(256), nullable=False)
     logdate = db.Column(db.DateTime, nullable=False)
     server = db.Column(db.String(64), nullable=False, primary_key=True)
     remotehost = db.Column(INET, nullable=False)
+    options = db.Column(db.String(512), nullable=True)
 
-    db.PrimaryKeyConstraint('server', 'taskid')
+    db.PrimaryKeyConstraint('server', 'taskid', 'uploadedfilehash')
 
     def __init__(self, extension, newfilename, fullocalpath, uploadedfile, taskid, urlresponse,
-                 remotehost, converter, server=None):
+                 remotehost, converter, options=None, server=None):
         self.extension = extension
         self.newfilename = newfilename
         self.taskid = taskid
+        self.options = options
         self.converter = converter
         self.fullocalpath = fullocalpath
         self.uploadedfile = uploadedfile
+        self.uploadedfilehash = hashlib.md5(self.uploadedfile.encode()).hexdigest()
         self.urlresponse = urlresponse
         if not server:
             self.server = Utils.get_server_name()
@@ -81,10 +86,11 @@ class Taskdb(db.Model):
         self.server = Utils.get_server_name()
         self.logdate = datetime.now()
         self.remotehost = fields.get('remotehost', '0.0.0.0')
+        self.options = fields.get('options', '')
 
     @classmethod
     def create_new_task(cls, fields):
-        task = Task()
+        task = Task(fields)
         task.fill(fields)
         return task
 
@@ -171,7 +177,7 @@ class TaskMapper(object):
 
         taskdb = Taskdb(extension=task.extension, newfilename=task.newfilename, fullocalpath=task.fullocalpath,
                         uploadedfile=task.uploadedfile, taskid=task.taskid, urlresponse=task.urlresponse,
-                        converter=task.converter, server=task.server, remotehost=task.remotehost)
+                        converter=task.converter, server=task.server, remotehost=task.remotehost, options=task.options)
         return TaskMapper.insert(taskdb)
 
     @classmethod

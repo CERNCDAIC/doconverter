@@ -86,6 +86,10 @@ class Neevia(object):
         NDocConverter = win32com.client.Dispatch("Neevia.docConverter")
         # TOPNG will provide a zip file
         expected_file = self.task.newfilename
+        hash_options = {}
+        imgconversion = 'PNG'
+        if self.task.options:
+            hash_options = Utils.convertohash(self.task.options)
         if self.task.converter.upper() == 'PS':
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PS'))
@@ -98,27 +102,44 @@ class Neevia(object):
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PNG'))
             NDocConverter.setParameter("DocumentOutputFormat", "PNG")
-            (imgresh, imgresv, imgheight, imgwidth)= Utils.getresolutionsettings(self.task.converter)
+            (imgresh, imgresv, imgheight, imgwidth) = Utils.getresolutionsettings('thumb', self.task.options)
             NDocConverter.setParameter('ImgHeight', imgheight)
             NDocConverter.setParameter('ImgWidth', imgwidth)
             NDocConverter.setParameter('ImgResH', imgresh)
-            NDocConverter.setParameter('ImgResV',imgresv)
-        elif self.task.converter.upper().startswith('TOPNG'):
+            NDocConverter.setParameter('ImgResV', imgresv)
+        elif self.task.converter.upper().startswith('TOIMG'):
+            if 'typeofimg' in hash_options.keys():
+                imgconversion = hash_options['typeofimg'].upper()
+            if imgconversion not in ['JPEG', 'BMP', 'TIFF', 'PNG']:
+                raise DoconverterException('This image format {} is not allowed'.format('imgconversion'))
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
-                                                                    'PNG'))
-            NDocConverter.setParameter("DocumentOutputFormat", "PNG")
-            (imgresh, imgresv, imgheight, imgwidth) = Utils.getresolutionsettings(self.task.converter)
+                                                                    imgconversion))
+            NDocConverter.setParameter("DocumentOutputFormat", imgconversion)
+            (imgresh, imgresv, imgheight, imgwidth) = Utils.getresolutionsettings('toimg', self.task.options)
             NDocConverter.setParameter('ImgHeight', imgheight)
             NDocConverter.setParameter('ImgWidth', imgwidth)
             if imgresh != 0 and imgresv != 0:
                 NDocConverter.setParameter('ImgResH', imgresh)
                 NDocConverter.setParameter('ImgResV', imgresv)
             # At least it should be one png file
-            expected_file = '{}1.png'.format(self.task.uploadedfile.split('.')[0])
+            imgconversion_ext = imgconversion.lower()
+            if imgconversion == 'JPEG':
+                imgconversion_ext = 'jpg'
+            if imgconversion != 'TIFF':
+                expected_file = '{}1.{}'.format(self.task.uploadedfile.split('.')[0], imgconversion_ext)
         else:
             NDocConverter.setParameter("DocumentOutputFormat", self.task.converter.upper())
             logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
                                                                     'PDF'))
+        logger.debug('{} expected file name is {}'.format(self.task.taskid,
+                                                          os.path.join(self.task.fullocalpath,
+                                                                       expected_file)))
+        # set special options
+        if 'hidedocumentrevisions' in self.task.options.lower() and self.task.extension in ['doc', 'docx'] \
+                and self.task.converter.upper() in ['PDF', 'PDFA']:
+            NDocConverter.setParserParameter('WORD', 'HideDocumentRevisions', hash_options['hidedocumentrevisions'])
+            logger.debug('HideDocumentRevisions set to {}'.format(hash_options['hidedocumentrevisions']))
+
         NDocConverter.setParameter("DocumentOutputFolder", self.success_dir)
         NDocConverter.setParameter("JobOption", "printer")
 
@@ -157,29 +178,31 @@ class Neevia(object):
             except DoconverterException:
                 for x in range(0, 30):
                     if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)):
-                        if self.task.converter.upper().startswith('TOPNG'):
-                            Utils.createzipfile(fromwhere, '*.png', finalzipfile)
+                        if '.zip' in self.task.newfilename:
+                            Utils.createzipfile(self.task.fullocalpath, '*.{}', os.path.join(self.task.fullocalpath,
+                                                                                             self.task.newfilename))
                         return 0
                     time.sleep(1)
                 raise
             except:
                 for x in range(0, 30):
                     if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)):
-                        if self.task.converter.upper().startswith('TOPNG'):
-                            Utils.createzipfile(fromwhere, '*.png', finalzipfile)
+                        if '.zip' in self.task.newfilename:
+                            Utils.createzipfile(self.task.fullocalpath, '*.{}'.format(imgconversion.lower()),
+                                                os.path.join(self.task.fullocalpath, self.task.newfilename))
                         return 0
                     time.sleep(1)
                 raise
             else:
                 for x in range(0, 60):
-                    if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)) \
-                            and not self.task.converter.upper().startswith('TOPNG'):
+                    if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)):
+                        if '.zip' in self.task.newfilename:
+                            Utils.createzipfile(self.task.fullocalpath, '*.{}'.format(imgconversion.lower()),
+                                                os.path.join(self.task.fullocalpath, self.task.newfilename))
                         return 0
                     time.sleep(1)
-                if not os.path.isfile(os.path.join(self.task.fullocalpath, self.task.newfilename)):
-                    raise DoconverterException('{} converted file {} missing. Error code from Neevia: {}'.format(
-                        self.task.taskid,
-                        os.path.join(
-                            self.task.fullocalpath,
-                            expected_file), status))
-                return status
+                raise DoconverterException('{} converted file {} missing. Error code from Neevia: {}'.format(
+                    self.task.taskid,
+                    os.path.join(
+                        self.task.fullocalpath,
+                        expected_file), status))

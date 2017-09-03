@@ -20,10 +20,10 @@ from doconverter.models.Taskdb import Taskdb  # noqa
 class Result_Conversion(db.Model):
     __tablename__ = 'results_conversion'
     __table_args__ = (db.ForeignKeyConstraint(
-        ['server', 'taskid'],
-        ['doconverter.taskdb.server', 'doconverter.taskdb.taskid'],
+        ['server', 'taskid', 'uploadedfilehash'],
+        ['doconverter.taskdb.server', 'doconverter.taskdb.taskid', 'doconverter.taskdb.uploadedfilehash'],
         onupdate='cascade', ondelete='cascade'), db.Index('time_col', 'logdate'),
-                      db.Index('fk_constraint', 'server', 'taskid'),
+                      db.Index('fk_constraint', 'server', 'taskid', 'uploadedfilehash'),
                       db.Index('fromtoextention_col', 'from_ext', 'to_ext'),
                       db.Index('size_from_col', 'size_from'),
                       db.Index('size_to_col', 'size_to'),
@@ -34,6 +34,7 @@ class Result_Conversion(db.Model):
     from_ext = db.Column(db.String(64), nullable=False)
     to_ext = db.Column(db.String(64), nullable=False)
     taskid = db.Column(db.Integer(), nullable=False)  # db.ForeignKey('doconverter.task.taskid', onupdate='cascade'))
+    uploadedfilehash = db.Column(db.String(128), nullable=False)
 
     # converter engine
     converter = db.Column(db.String(64), nullable=False)
@@ -46,13 +47,13 @@ class Result_Conversion(db.Model):
     duration = db.Column(db.Integer(), nullable=False)
     logdate = db.Column(db.DateTime, nullable=False)
     remotehost = db.Column(INET, nullable=False)
-    hashurl=db.Column(db.String(1024), nullable=True)
+    hashurl = db.Column(db.String(1024), nullable=True)
     task = db.relationship('Taskdb', backref=db.backref('results',
                                                         cascade="all, delete, delete-orphan",
                                                         single_parent=True))
 
     def __init__(self, from_ext=None, to_ext=None, taskid=None, remotehost=None,
-                 converter=None, size_from=None, size_to=None, duration=None, error=None):
+                 converter=None, size_from=None, size_to=None, duration=None, error=None, uploadedfilehash=None):
         self.from_ext = from_ext
         self.to_ext = to_ext
         self.taskid = taskid
@@ -64,6 +65,7 @@ class Result_Conversion(db.Model):
         self.logdate = datetime.now()
         self.error = error
         self.remotehost = remotehost
+        self.uploadedfilehash = uploadedfilehash
 
     def fill(self, fields, _=None):
         """
@@ -87,9 +89,9 @@ class Result_Conversion(db.Model):
         self.server = Utils.get_server_name()
         self.logdate = datetime.now()
         self.error = fields.get('error', None)
-        self.remotehost = fields.get('remotehost','0.0.0.0')
-        self.hashurl = fields.get(hash,'-1')
-
+        self.remotehost = fields.get('remotehost', '0.0.0.0')
+        self.hashurl = fields.get(hash, '-1')
+        self.uploadedfilehash = fields.get('uploadedfilehash')
 
     @classmethod
     def create_new_result(cls, fields):
@@ -228,12 +230,14 @@ class Result_ConversionMapper(object):
         return Result_ConversionMapper.insert(re)
 
     @classmethod
-    def delete(cls, server, taskid):
+    def delete(cls, server, taskid, uploadedfilehash):
         """
-            Delete the object identified by the room_name
+            Delete the object identified by server and taskid and hash
         """
         result = Result_Conversion.query.filter(
-                (Result_Conversion.taskid == taskid) & (Result_Conversion.server == server)).one()
+                (Result_Conversion.taskid == taskid) &
+                (Result_Conversion.server == server) &
+                (Result_Conversion.server == uploadedfilehash)).one()
         try:
             db.session.delete(result)
             db.session.commit()

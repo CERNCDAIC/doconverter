@@ -9,19 +9,16 @@
 # or submit itself to any jurisdiction.
 
 import os
-import platform
 import random
 import logging
 import psutil
 import smtplib
 import platform
-import re
 import fnmatch
 import zipfile
 from email.mime.text import MIMEText
 from logging.handlers import QueueHandler
 from doconverter.config import APPCONFIG
-from datetime import datetime
 
 
 class Utils(object):
@@ -65,7 +62,6 @@ class Utils(object):
             taskid = random.randint(0, 999999999)
         Utils.logger.info("new taskid generated %s" % taskid)
         return taskid
-
 
     @staticmethod
     def getserver():
@@ -205,41 +201,74 @@ class Utils(object):
         return True
 
     @staticmethod
-    def getresolutionsettings(converter):
+    def convertohash(juststr):
+        '''
+
+        :param juststr: an string with format: a=b:c=d:....
+        :return: a dictionary
+        '''
+        list_options = juststr.split(':')
+        hash_options = {}
+        for item in list_options:
+            k, v = item.split('=')
+            hash_options[k] = v
+        return hash_options
+
+    @staticmethod
+    def getresolutionsettings(typeofimg, options):
         '''
 
         :param converter: it's the desired output of a conversion e.g. thumb, pdf, pdfa
         :return: a tupple with image resolution (dpi) and size (pixels) (imgresh, imgresv, imgheight, imgwidth)
         '''
-
-        if not converter:
-            return ()
         Utils.__getlogging()
-        Utils.logger.debug('converter is {}'.format(converter))
-        dpi_res = ('72x72','100x100','150x150','200x200','300x300','400x400','600x600','1200x1200')
-        # defaults
         imgresh = 300
         imgresv = 300
-        imgheight = 200
-        imgwidth = 200
-        m = re.match(r'(thumb|topng)_(\d*)_(\d*)_(\d*)_(\d*)', converter, re.M | re.I)
-        if m and len(m.groups()) == 5:
-            imgresh = int(m.group(2))
-            imgresv = int(m.group(3))
-            imgheight = int(m.group(4))
-            imgwidth = int(m.group(5))
-        # Needs to be to png, dimensions not set
-        if m and len(m.groups()) == 3 and m.groups(1) == 'topng':
-            imgresh = int(m.groups(2))
-            imgresv = int(m.groups(3))
-            imgheight = 0
-            imgwidth = 0
+        imgheight = 0
+        imgwidth = 0
+        if typeofimg.lower() == 'thumb':
+            imgheight = 200
+            imgwidth = 200
+        if not options:
+            # apply defaults
+            Utils.logger.debug('Following dpi: imgresh: {} imgresv {} and dimensions: imgheight {} imgwidth {}'
+                               .format(imgresh, imgresv, imgheight, imgwidth))
+            return (imgresh, imgresv, imgheight, imgwidth)
+
+        Utils.logger.debug('options are {}'.format(options))
+        dpi_res = ('72x72', '100x100', '150x150', '200x200', '300x300', '400x400', '600x600', '1200x1200')
+        hash_options = Utils.convertohash(options)
+        # defaults
+        imgresh = hash_options.get('imgresh', 300)
+        imgresv = hash_options.get('imgresv', 300)
+        if typeofimg.lower() == 'thumb':
+            imgheight = hash_options.get('imgheight', 200)
+            imgwidth = hash_options.get('imgwidth', 200)
+        else:
+            imgheight = hash_options.get('imgheight', 0)
+            imgwidth = hash_options.get('imgwidth', 0)
+        if not '{}x{}'.format(imgresh, imgresv) in dpi_res:
+            Utils.logger.debug("Specified dpi: %s is not alloweed" % '{}x{}'.format(imgresh, imgresv))
+            return {}
         Utils.logger.debug('Following dpi: imgresh: {} imgresv {} and dimensions: imgheight {} imgwidth {}'
                            .format(imgresh, imgresv, imgheight, imgwidth))
         return (imgresh, imgresv, imgheight, imgwidth)
 
     @staticmethod
     def createzipfile(fromwhere, pattern, finalzipfile):
+        '''
+
+        :param fromwhere: parent directory e.g. Y:\\conv-test02\\var\\uploadsresults\\184627739
+        :param pattern: which files to compress
+        :param finalzipfile: full path to zip file e.g. Y:\\conv-test02\\var\\uploadsresults\\184627739\\file.zip
+        :return:
+        '''
+        Utils.__getlogging()
+        Utils.logger.debug('Creating Zipfile {}'.format(finalzipfile))
+        if 'jpeg' in pattern:
+            pattern = pattern.replace('jpeg', 'jpg')
         result = fnmatch.filter(os.listdir(fromwhere), pattern)
-        for f in result:
-            print(f)
+        with zipfile.ZipFile(finalzipfile, 'w', zipfile.ZIP_DEFLATED) as zip:
+            for f in result:
+                Utils.logger.debug('Zipping {}'.format(os.path.join(fromwhere, f)))
+                zip.write(os.path.join(fromwhere, f), arcname=f)

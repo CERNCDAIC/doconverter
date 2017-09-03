@@ -22,7 +22,7 @@ class Task(object):
     logger = None
 
     def __init__(self, uploadedfile, converter, urlresponse, diresponse, remotehost=None, server=None,
-                 taskid=None, queue=None):
+                 taskid=None, options=None, queue=None):
         global logger
         logger = Utils.initlogger(queue)
         self.queue = queue
@@ -44,15 +44,21 @@ class Task(object):
         else:
             self.taskid = taskid
         self.fullocalpath = os.path.join(APPCONFIG[self.server]['uploadsresults'], str(self.taskid))
-
+        if options:
+            self.options = options
+        else:
+            self.options = ''
         if converter == 'pdfa':
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
         elif converter.startswith('thumb'):
             # Neevia converter adds a number to each page of the document converted to PNG
             self.newfilename = '{}1.png'.format(self.uploadedfile.split('.')[0])
-        elif converter.startswith('topng'):
+        elif converter.startswith('toimg'):
             # Neevia converter adds a number to each page of the document converted to PNG, result will be compressed
-            self.newfilename = '{}.zip'.format(self.uploadedfile.split('.')[0])
+            if 'tiff' not in self.options.lower():
+                self.newfilename = '{}.zip'.format(self.uploadedfile.split('.')[0])
+            else:
+                self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'tif')
         else:
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], self.converter)
         logger.info('%s newfilename is %s' % (self.taskid, self.newfilename))
@@ -86,13 +92,15 @@ class Task(object):
             'extension': self.extension,
             'newfilename': self.newfilename,
             'server': self.server,
-            'remotehost': self.remotehost
+            'remotehost': self.remotehost,
+            'options': self.options
         }
         with open(path, 'w') as outfile:
             json.dump(data, outfile)
 
         logger.info('new taskid {} from remote_host: {} ext_from: {} ext_to: {}'.format(self.taskid, self.remotehost,
                                                                                         self.extension, self.converter))
+
     @staticmethod
     def getaskbyid(taskid, queue=None, dir=None):
         """Get Task by id
@@ -108,9 +116,11 @@ class Task(object):
         if os.path.exists(os.path.join(dir, taskid)):
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
+
             return Task(uploadedfile=data['uploadedfile'], converter=data['converter'], urlresponse=data['urlresponse'],
                         diresponse=data['diresponse'], server=data['server'], remotehost=data['remotehost'],
-                        taskid=taskid, queue=queue)
+                        options=data['options'], taskid=taskid, queue=queue)
+
         return None
 
     def decidequeue(self, fromext, converter):

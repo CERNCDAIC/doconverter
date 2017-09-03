@@ -30,6 +30,7 @@ class UploadFile(Resource):
         self.reqparse_post.add_argument('converter', type=str, location='form', required=True)
         self.reqparse_post.add_argument('urlresponse', type=str, location='form', required=True)
         self.reqparse_post.add_argument('dirresponse', type=str, location='form', required=True)
+        self.reqparse_post.add_argument('options', type=str, location='form', required=False)
 
     def post(self):
         UploadFile.logger.debug("post begin")
@@ -50,7 +51,7 @@ class UploadFile(Resource):
         if file and Utils.allowed_filextension(extension, APPCONFIG['extensions_all']):
             filename = secure_filename(file.filename)
             task = Task(converter=args["converter"], urlresponse=args["urlresponse"], diresponse=args["dirresponse"],
-                        uploadedfile=filename, remotehost=request.remote_addr)
+                        uploadedfile=filename, options=args['options'], remotehost=request.remote_addr)
             pathdir = task.fullocalpath
             file.save(os.path.join(pathdir, filename))
 

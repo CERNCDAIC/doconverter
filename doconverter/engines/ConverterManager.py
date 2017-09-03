@@ -13,6 +13,7 @@ import sys
 import os
 import traceback
 import time
+import hashlib
 from doconverter.tools.Task import Task
 from doconverter.config import APPCONFIG
 from doconverter.DoconverterException import DoconverterException
@@ -34,11 +35,9 @@ class ConverterManager(multiprocessing.Process):
         self.converter_class = self.__find_converter()
         self.common_list = list_processes
         logger.debug('Working on taskid {} from remote_host: {} ext_from: {} ext_to: {}'.format(self.task.taskid,
-                                                                                               self.task.remotehost,
-                                                                                               self.task.extension,
-                                                                                               self.task.converter))
-
-
+                                                                                                self.task.remotehost,
+                                                                                                self.task.extension,
+                                                                                                self.task.converter))
 
     def __find_converter(self):
         for converter in APPCONFIG['converters']:
@@ -55,6 +54,7 @@ class ConverterManager(multiprocessing.Process):
         Utils.set_server_name(self.server)
         converter = self.converter_class(taskid=self.task.taskid, queue=self.queue)
         logger = Utils.initlogger(self.queue)
+        uploadedfilehash = hashlib.md5(self.task.uploadedfile.encode()).hexdigest()
         status = -1
         before = None
         after = None
@@ -83,6 +83,7 @@ class ConverterManager(multiprocessing.Process):
                                                                 os.path.join(self.task.fullocalpath,
                                                                              self.task.newfilename)),
                                                             duration=totalsecs,
+                                                            uploadedfilehash=uploadedfilehash,
                                                             converter=str(self.converter_class))):
                     logger.debug('Results for task {} were logged.'.format(self.task.taskid))
                 else:
@@ -105,6 +106,7 @@ class ConverterManager(multiprocessing.Process):
                                                                              self.task.uploadedfile)),
                                                             size_to=-1,
                                                             duration=totalsecs,
+                                                            uploadedfilehash=uploadedfilehash,
                                                             converter=str(self.converter_class))):
                     logger.debug('Results for task {} were logged.'.format(self.task.taskid))
                 else:
@@ -127,6 +129,7 @@ class ConverterManager(multiprocessing.Process):
                                                    size_to=-1,
                                                    duration=-1,
                                                    converter=str(self.converter_class),
+                                                   uploadedfilehash=uploadedfilehash,
                                                    error=repr(ex))):
                 logger.debug('Results for task {} were logged.'.format(self.task.taskid))
             else:
@@ -147,6 +150,7 @@ class ConverterManager(multiprocessing.Process):
                                                                     self.task.uploadedfile)),
                                                    size_to=-1,
                                                    duration=-1,
+                                                   uploadedfilehash=uploadedfilehash,
                                                    converter=str(self.converter_class),
                                                    error=repr(ex))):
                 logger.debug('Results for task {} were logged.'.format(self.task.taskid))

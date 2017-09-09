@@ -123,10 +123,14 @@ class Task(object):
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
 
-            return Task(uploadedfile=data['uploadedfile'], converter=data['converter'], urlresponse=data['urlresponse'],
+            if 'options' in data.keys():
+                return Task(uploadedfile=data['uploadedfile'], converter=data['converter'], urlresponse=data['urlresponse'],
                         diresponse=data['diresponse'], server=data['server'], remotehost=data['remotehost'],
                         options=data['options'], taskid=taskid, queue=queue)
-
+            else:
+                return Task(uploadedfile=data['uploadedfile'], converter=data['converter'], urlresponse=data['urlresponse'],
+                        diresponse=data['diresponse'], server=data['server'], remotehost=data['remotehost'],
+                        options=None, taskid=taskid, queue=queue)
         return None
 
     def decidequeue(self, fromext, converter):

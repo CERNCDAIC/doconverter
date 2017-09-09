@@ -36,7 +36,7 @@ class Taskdb(db.Model):
     logdate = db.Column(db.DateTime, nullable=False)
     server = db.Column(db.String(64), nullable=False, primary_key=True)
     remotehost = db.Column(INET, nullable=False)
-    options = db.Column(db.String(512), nullable=True)
+    options = db.Column(db.String(1024), nullable=True)
 
     db.PrimaryKeyConstraint('server', 'taskid', 'uploadedfilehash')
 

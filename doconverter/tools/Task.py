@@ -114,6 +114,12 @@ class Task(object):
             server = Utils.get_server_name()
             dir = APPCONFIG[server]['tasks']
         if os.path.exists(os.path.join(dir, taskid)):
+            # Iterate as max 5 times
+            i=0
+            while not Utils.isfileolderthan(os.path.join(dir, taskid), 5) & i < 5:
+                # sleep a sec to give time to EOS...
+                i+=1
+                time.sleep(1)
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
 

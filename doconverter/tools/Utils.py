@@ -16,6 +16,7 @@ import smtplib
 import platform
 import fnmatch
 import zipfile
+import time
 from email.mime.text import MIMEText
 from logging.handlers import QueueHandler
 from doconverter.config import APPCONFIG
@@ -43,13 +44,30 @@ class Utils(object):
             Utils.logger = logging.getLogger('doconverter-api')
 
     @staticmethod
+    def isfileolderthan(file, secs=5):
+        """Return True if file is older than X secs (5 as default), False otherwise
+
+        :param: secs - seconds a file should be older to return True
+        :param: file - file to check
+        :return:
+        """
+
+        file_time = round(os.stat(file).st_mtime)
+        if (time.time() - file_time) > secs:
+            return True
+        return False
+
+
+
+    @staticmethod
     def generate_taskid(server=None):
         """Generate a taskid that should be unique among possible current running tasks"""
         Utils.__getlogging()
         Utils.logger.info('checking possible taskid')
-        randome = os.urandom(24)
-        random.seed(randome)
-        taskid = random.randint(0, 999999999)
+        #randome = os.urandom(24)
+        #random.seed(randome)
+        #taskid = random.randint(0, 999999999)
+        taskid = round(time.time())
         while True:
             Utils.logger.info('checking possible taskid %s', taskid)
             if not server:

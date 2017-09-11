@@ -19,6 +19,7 @@ from doconverter.config import APPCONFIG
 from doconverter.DoconverterException import DoconverterException
 from doconverter.tools.Utils import Utils
 from doconverter.engines.Neevia import Neevia  # noqa
+from doconverter.engines.Hpglview_raster import Hpglview_raster  # noqa
 
 
 class ConverterManager(multiprocessing.Process):
@@ -42,23 +43,25 @@ class ConverterManager(multiprocessing.Process):
     def __find_converter(self):
         for converter in APPCONFIG['converters']:
             if self.task.converter.split('_')[0] in APPCONFIG['converters'][converter]['output_allowed'] and \
-                    self.task.extension in APPCONFIG['converters'][converter]['extensions_allowed']:
+                    self.task.extension.lower() in APPCONFIG['converters'][converter]['extensions_allowed']:
                 logger.debug('converter class for reflection: %s' % globals()[converter])
                 return globals()[converter]
-        raise DoconverterException(
-            "from {} to {} in task {} no converter defined."
-            .format(self.task.extension, self.converter_class, self.task.taskid))
+        logger.debug("{} from {} to {} no converter defined.".format(self.task.taskid, self.task.extension, self.task.converter))
+        return None
 
     def run(self):
         from doconverter.models.Result_Conversion import Result_ConversionMapper
         Utils.set_server_name(self.server)
-        converter = self.converter_class(taskid=self.task.taskid, queue=self.queue)
         logger = Utils.initlogger(self.queue)
         uploadedfilehash = hashlib.md5(self.task.uploadedfile.encode()).hexdigest()
         status = -1
         before = None
         after = None
         try:
+            if not self.converter_class:
+                raise DoconverterException("{} from {} using converter {} no converter defined."
+                                           .format(self.task.taskid, self.task.extension, self.task.converter))
+            converter = self.converter_class(taskid=self.task.taskid, queue=self.queue)
             before = time.clock()
             status = converter.convert()
             after = time.clock()

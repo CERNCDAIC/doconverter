@@ -13,33 +13,27 @@ import win32com.client
 import os
 import time
 import random
-from doconverter.tools.Task import Task
+from doconverter.engines.Baseconverters import Baseconverters
 from doconverter.tools.Utils import Utils
-from doconverter.config import APPCONFIG
 from doconverter.DoconverterException import DoconverterException
 
 
-class Neevia(object):
-    logger = None
+class Neevia(Baseconverters):
 
     def __init__(self, taskid, queue=None):
-        global logger
-        logger = Utils.initlogger(queue)
-        self.task = Task.getaskbyid(taskid, queue)
-        self.error_dir = os.path.join(APPCONFIG[self.task.server]['error'], self.task.taskid)
-        self.success_dir = os.path.join(APPCONFIG[self.task.server]['uploadsresults'], self.task.taskid)
+        Baseconverters.__init__(self, taskid=taskid, queue=queue)
 
     @classmethod
     def get_classname(cls):
         return cls.__name__
 
-    def __create_dirs_for_task(self):
-        if not os.path.exists(self.success_dir):
-            os.makedirs(self.success_dir, exist_ok=True)
-            logger.debug('%s directory created: %s', self.task.taskid, self.success_dir)
-        if not os.path.exists(os.path.join(APPCONFIG[self.task.server]['error'], self.task.taskid)):
-            os.makedirs(self.error_dir, exist_ok=True)
-            logger.debug('%s directory created: %s', self.task.taskid, self.error_dir)
+    # def __create_dirs_for_task(self):
+    #    if not os.path.exists(self.success_dir):
+    #        os.makedirs(self.success_dir, exist_ok=True)
+    #        logger.debug('%s directory created: %s', self.task.taskid, self.success_dir)
+    #    if not os.path.exists(os.path.join(APPCONFIG[self.task.server]['error'], self.task.taskid)):
+    #        os.makedirs(self.error_dir, exist_ok=True)
+    #        logger.debug('%s directory created: %s', self.task.taskid, self.error_dir)
 
     def __submit_return_check(self, retval):
         retvals = {
@@ -74,11 +68,11 @@ class Neevia(object):
             }
         error = retvals.get(retval, '%s Undocumented Return Value')
         if error is not None:
-            logger.debug('{} submitting file issue1 <{}>'.format(self.task.taskid, error))
+            Baseconverters.logger.debug('{} submitting file issue1 <{}>'.format(self.task.taskid, error))
         return retval
 
     def convert(self):
-        logger.debug('{} convertion started'.format(self.task.taskid))
+        Baseconverters.logger.debug('{} conversion started'.format(self.task.taskid))
         if not os.path.isfile(os.path.join(self.task.fullocalpath, self.task.uploadedfile)):
             raise DoconverterException('{} file is missing {}'.format(self.task.taskid,
                                                                       os.path.join(self.task.fullocalpath,
@@ -86,21 +80,19 @@ class Neevia(object):
         NDocConverter = win32com.client.Dispatch("Neevia.docConverter")
         # TOPNG will provide a zip file
         expected_file = self.task.newfilename
-        hash_options = {}
         imgconversion = 'PNG'
-        if self.task.options:
-            hash_options = Utils.convertohash(self.task.options)
+
         if self.task.converter.upper() == 'PS':
-            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
-                                                                    'PS'))
+            Baseconverters.logger.debug('{} conversion from: {} towards {}'
+                                        .format(self.task.taskid, self.task.extension, 'PS'))
             NDocConverter.setParameter("DocumentOutputFormat", "POSTSCRIPT")
         elif self.task.converter.upper() == 'PDFA':
-            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
-                                                                    'PDF/A'))
+            Baseconverters.logger.debug('{} conversion from: {} towards {}'
+                                        .format(self.task.taskid, self.task.extension, 'PDF/A'))
             NDocConverter.setParameter("DocumentOutputFormat", "PDF/A")
         elif self.task.converter.upper().startswith('THUMB'):
-            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
-                                                                    'PNG'))
+            Baseconverters.logger.debug('{} conversion from: {} towards {}'
+                                        .format(self.task.taskid, self.task.extension, 'PNG'))
             NDocConverter.setParameter("DocumentOutputFormat", "PNG")
             (imgresh, imgresv, imgheight, imgwidth) = Utils.getresolutionsettings('thumb', self.task.options)
             NDocConverter.setParameter('ImgHeight', imgheight)
@@ -108,12 +100,12 @@ class Neevia(object):
             NDocConverter.setParameter('ImgResH', imgresh)
             NDocConverter.setParameter('ImgResV', imgresv)
         elif self.task.converter.upper().startswith('TOIMG'):
-            if 'typeofimg' in hash_options.keys():
-                imgconversion = hash_options['typeofimg'].upper()
+            if 'typeofimg' in self.hash_options.keys():
+                imgconversion = self.hash_options['typeofimg'].upper()
             if imgconversion not in ['JPEG', 'BMP', 'TIFF', 'PNG']:
                 raise DoconverterException('This image format {} is not allowed'.format('imgconversion'))
-            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
-                                                                    imgconversion))
+                Baseconverters.logger.debug('{} conversion from: {} towards {}'
+                                            .format(self.task.taskid, self.task.extension, imgconversion))
             NDocConverter.setParameter("DocumentOutputFormat", imgconversion)
             (imgresh, imgresv, imgheight, imgwidth) = Utils.getresolutionsettings('toimg', self.task.options)
             NDocConverter.setParameter('ImgHeight', imgheight)
@@ -129,16 +121,17 @@ class Neevia(object):
                 expected_file = '{}1.{}'.format(self.task.uploadedfile.split('.')[0], imgconversion_ext)
         else:
             NDocConverter.setParameter("DocumentOutputFormat", self.task.converter.upper())
-            logger.debug('{} conversion from: {} towards {}'.format(self.task.taskid, self.task.extension,
-                                                                    'PDF'))
-        logger.debug('{} expected file name is {}'.format(self.task.taskid,
-                                                          os.path.join(self.task.fullocalpath,
-                                                                       expected_file)))
+            Baseconverters.logger.debug('{} conversion from: {} towards {}'
+                                        .format(self.task.taskid, self.task.extension, 'PDF'))
+        Baseconverters.logger.debug('{} expected file name is {}'
+                                    .format(self.task.taskid, os.path.join(self.task.fullocalpath, expected_file)))
         # set special options
         if 'hidedocumentrevisions' in self.task.options.lower() and self.task.extension in ['doc', 'docx'] \
                 and self.task.converter.upper() in ['PDF', 'PDFA']:
-            NDocConverter.setParserParameter('WORD', 'HideDocumentRevisions', hash_options['hidedocumentrevisions'])
-            logger.debug('HideDocumentRevisions set to {}'.format(hash_options['hidedocumentrevisions']))
+            NDocConverter.setParserParameter('WORD', 'HideDocumentRevisions',
+                                             self.hash_options['hidedocumentrevisions'])
+            Baseconverters.logger.debug('HideDocumentRevisions set to {}'
+                                        .format(self.hash_options['hidedocumentrevisions']))
 
         NDocConverter.setParameter("DocumentOutputFolder", self.success_dir)
         NDocConverter.setParameter("JobOption", "printer")
@@ -150,22 +143,22 @@ class Neevia(object):
             if os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size > size_file:
                 size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
                 time.sleep(random.randint(0, 15))
-                logger.debug('file: {} still being copied size is {} bytes'.format(
+                Baseconverters.logger.debug('file: {} still being copied size is {} bytes'.format(
                     os.path.join(self.task.fullocalpath, self.task.uploadedfile),
                     size_file))
             elif os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size == size_file:
-                logger.debug('file: {} got stationary size: {} bytes'.format(
+                Baseconverters.logger.debug('file: {} got stationary size: {} bytes'.format(
                     os.path.join(self.task.fullocalpath, self.task.uploadedfile),
                     size_file))
                 break
             else:
-                logger.debug('file: {} must have been fully copied, leaving loop'.format(
+                Baseconverters.logger.debug('file: {} must have been fully copied, leaving loop'.format(
                     os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
 
         self.__submit_return_check(NDocConverter.SubmitFile(os.path.join(self.task.fullocalpath,
                                                                          self.task.uploadedfile), ''))
 
-        logger.debug('{} file submitted: {} '.format(self.task.taskid, self.task.uploadedfile))
+        Baseconverters.logger.debug('{} file submitted: {} '.format(self.task.taskid, self.task.uploadedfile))
         status = None
         while True:
             try:

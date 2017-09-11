@@ -57,6 +57,9 @@ def format_conversion(extension=None):
                           'toimg_400_400'])
         # available = ['toimg_200_200', 'toimg', 'toimg_400_400']
         # available = ['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150' ]
+    if extension in ['plt']:
+        available = ['hpgl']
+
     return random.choice(available)
 
 
@@ -74,7 +77,7 @@ def send_by_web(filename, dict):
         extension = m.group(1)
     fin = open(filename, 'rb')
     file = {'uploadedfile': fin}
-    converter_final = format_conversion(extension)
+    converter_final = format_conversion(extension.lower())
     converter_options = ''
 
     if converter_final.startswith('thumb') or converter_final.startswith('toimg'):
@@ -110,6 +113,8 @@ def send_by_web(filename, dict):
             converter_options = converter_options + ":typeofimg=" + random.choice(['jpeg', 'BMP', 'tiff', 'PNG'])
         else:
             converter_options = "typeofimg=" + random.choice(['Jpeg', 'BMP', 'TiFF', 'PNG'])
+    if converter_final.startswith('hpgl'):
+        converter_options = "color=" + random.choice(['tRUe', 'falSe'])
     payload = {
         'converter': converter_final,
         'dirresponse': dict['diresponse'],
@@ -158,7 +163,7 @@ def format_filename(file, number):
     :return:
     '''
     (path, filename) = os.path.split(file)
-    regexc = re.compile('(\w*)\.(\w{2,4})')
+    regexc = re.compile('([\w-]*)\.(\w{2,4})', re.IGNORECASE)
     matched = regexc.match(filename)
     if matched.groups():
         sequence = '{num:05d}'.format(num=number)

@@ -27,7 +27,7 @@ class Task(object):
         logger = Utils.initlogger(queue)
         self.queue = queue
         self.uploadedfile = uploadedfile
-        self.converter = converter
+        self.converter = converter.lower()
         self.urlresponse = urlresponse
         self.diresponse = diresponse
         if remotehost:
@@ -59,6 +59,8 @@ class Task(object):
                 self.newfilename = '{}.zip'.format(self.uploadedfile.split('.')[0])
             else:
                 self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'tif')
+        elif converter.startswith('hpgl'):
+            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
         else:
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], self.converter)
         logger.info('%s newfilename is %s' % (self.taskid, self.newfilename))
@@ -115,22 +117,23 @@ class Task(object):
             dir = APPCONFIG[server]['tasks']
         if os.path.exists(os.path.join(dir, taskid)):
             # Iterate as max 5 times
-            i=0
+            i = 0
             while not Utils.isfileolderthan(os.path.join(dir, taskid), 5) & i < 5:
                 # sleep a sec to give time to EOS...
-                i+=1
+                i += 1
                 time.sleep(1)
+            Utils.logmessage('{} reading json file.'.format(taskid))
             with open(os.path.join(dir, taskid)) as data_file:
                 data = json.load(data_file)
 
             if 'options' in data.keys():
-                return Task(uploadedfile=data['uploadedfile'], converter=data['converter'], urlresponse=data['urlresponse'],
-                        diresponse=data['diresponse'], server=data['server'], remotehost=data['remotehost'],
-                        options=data['options'], taskid=taskid, queue=queue)
+                return Task(uploadedfile=data['uploadedfile'], converter=data['converter'],
+                            urlresponse=data['urlresponse'], diresponse=data['diresponse'], server=data['server'],
+                            remotehost=data['remotehost'], options=data['options'], taskid=taskid, queue=queue)
             else:
-                return Task(uploadedfile=data['uploadedfile'], converter=data['converter'], urlresponse=data['urlresponse'],
-                        diresponse=data['diresponse'], server=data['server'], remotehost=data['remotehost'],
-                        options=None, taskid=taskid, queue=queue)
+                return Task(uploadedfile=data['uploadedfile'], converter=data['converter'],
+                            urlresponse=data['urlresponse'], diresponse=data['diresponse'], server=data['server'],
+                            remotehost=data['remotehost'], options=None, taskid=taskid, queue=queue)
         return None
 
     def decidequeue(self, fromext, converter):
@@ -218,13 +221,13 @@ class Task(object):
             if response.status_code >= 300:
                 raise requests.RequestException('{} Unexpected response from server: {}'.format(self.taskid,
                                                                                                 response.text))
-            logger.info('{} result submitted to callback'.format(self.taskid))
+                Utils.logmessage('{} result submitted to callback'.format(self.taskid))
         else:
             response = requests.post(self.urlresponse, data=payload, verify=APPCONFIG['ca_bundle'])
             if response.status_code >= 300:
-                logger.debug('{} error while sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
+                Utils.logmessage('{} error while sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
             else:
-                logger.info('{} success sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
+                Utils.logmessage('{} success sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
 
         totalsecs = round(time.clock() - before)
-        logger.info('Sending file {} to {} took: {} secs'.format(pathtofile, self.urlresponse, totalsecs))
+        Utils.logmessage('Sending file {} to {} took: {} secs'.format(pathtofile, self.urlresponse, totalsecs))

@@ -17,6 +17,7 @@ import platform
 import fnmatch
 import zipfile
 import time
+import subprocess
 from email.mime.text import MIMEText
 from logging.handlers import QueueHandler
 from doconverter.config import APPCONFIG
@@ -57,16 +58,14 @@ class Utils(object):
             return True
         return False
 
-
-
     @staticmethod
     def generate_taskid(server=None):
         """Generate a taskid that should be unique among possible current running tasks"""
         Utils.__getlogging()
         Utils.logger.info('checking possible taskid')
-        #randome = os.urandom(24)
-        #random.seed(randome)
-        #taskid = random.randint(0, 999999999)
+        # randome = os.urandom(24)
+        # random.seed(randome)
+        # taskid = random.randint(0, 999999999)
         taskid = round(time.time())
         while True:
             Utils.logger.info('checking possible taskid %s', taskid)
@@ -98,7 +97,7 @@ class Utils(object):
         :param: list_extentions - list of possible extensions
         :return: True or False
         """
-        if extension in list_extensions:
+        if extension.lower() in list_extensions:
             return True
         return False
 
@@ -290,3 +289,25 @@ class Utils(object):
             for f in result:
                 Utils.logger.debug('Zipping {}'.format(os.path.join(fromwhere, f)))
                 zip.write(os.path.join(fromwhere, f), arcname=f)
+
+    @staticmethod
+    def syscom(cmd, read_output=True, shell=False):
+        """
+            Execute a process
+        """
+        Utils.__getlogging()
+        if type(cmd) is list:
+            Utils.logger.debug("syscom: %s" % subprocess.list2cmdline(cmd))
+        else:
+            Utils.logger.debug("syscom: %s" % cmd)
+
+        p = None
+        if not read_output:
+            p = subprocess.Popen(cmd, shell=shell)
+        else:
+            p = subprocess.Popen(cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            out, _ = p.communicate()
+            out_list = out.splitlines()
+            Utils.logger.debug("Output: {}".format(out))
+
+        return p.returncode, out_list

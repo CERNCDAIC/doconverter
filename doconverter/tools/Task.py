@@ -59,7 +59,7 @@ class Task(object):
                 self.newfilename = '{}.zip'.format(self.uploadedfile.split('.')[0])
             else:
                 self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'tif')
-        elif converter.startswith('hpgl'):
+        elif converter.startswith('hpgl') or converter.startswith('tesocr'):
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
         else:
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], self.converter)

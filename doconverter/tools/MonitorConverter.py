@@ -62,11 +62,12 @@ class MonitorConverter:
 
         # Check if processes are running
         for p in self.converters:
-            if Utils.isprocess_running(self.converters[p]['exe']) >= 1:
-                msg.append('Converter {}:  UP'.format(p))
-            else:
-                msg.append('Converter {}:  DOWN (please check!)'.format(p))
-                send = True
+            if p == 'Neevia':
+                if Utils.isprocess_running(self.converters[p]['exe']) >= 1:
+                    msg.append('Converter {}:  UP'.format(p))
+                else:
+                    msg.append('Converter {}:  DOWN (please check!)'.format(p))
+                    send = True
         # main
         if Utils.isprocess_running(self.daemon, 'python') >= self.isupcounter:
             msg.append('Daemon:  UP')

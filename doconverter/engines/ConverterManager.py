@@ -20,6 +20,7 @@ from doconverter.DoconverterException import DoconverterException
 from doconverter.tools.Utils import Utils
 from doconverter.engines.Neevia import Neevia  # noqa
 from doconverter.engines.Hpglview_raster import Hpglview_raster  # noqa
+from doconverter.engines.Tesseract_ocr import Tesseract_ocr  # noqa
 
 
 class ConverterManager(multiprocessing.Process):

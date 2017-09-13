@@ -10,6 +10,8 @@
 
 
 import os
+import time
+import random
 from doconverter.tools.Task import Task
 from doconverter.tools.Utils import Utils
 from doconverter.config import APPCONFIG
@@ -26,3 +28,24 @@ class Baseconverters(object):
         self.hash_options = {}
         if self.task.options:
             self.hash_options = Utils.convertohash(self.task.options)
+
+    def isfileready(self):
+        # sleep randomly to reduce likelihood of -3 Invalid input folder error
+        size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
+        while True:
+            time.sleep(1)
+            if os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size > size_file:
+                size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
+                time.sleep(random.randint(0, 15))
+                Baseconverters.logger.debug('file: {} still being copied size is {} bytes'.format(
+                    os.path.join(self.task.fullocalpath, self.task.uploadedfile),
+                    size_file))
+            elif os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size == size_file:
+                Baseconverters.logger.debug('file: {} got stationary size: {} bytes'.format(
+                    os.path.join(self.task.fullocalpath, self.task.uploadedfile),
+                    size_file))
+                break
+            else:
+                Baseconverters.logger.debug('file: {} must have been fully copied, leaving loop'.format(
+                    os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
+                return True

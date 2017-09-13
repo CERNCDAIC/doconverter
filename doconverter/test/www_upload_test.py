@@ -53,13 +53,14 @@ def format_conversion(extension=None):
     if extension in ['png', 'jpg']:
         available.remove('pdfa')
     if extension in ['pdf', 'pdfa']:
-        available.extend(['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150', 'toimg_200_200', 'toimg',
-                          'toimg_400_400'])
+        available = ['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150',
+                     'toimg_200_200', 'toimg', 'toimg_400_400']
         # available = ['toimg_200_200', 'toimg', 'toimg_400_400']
         # available = ['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150' ]
     if extension in ['plt']:
         available = ['hpgl']
-
+    if extension in ['tif']:
+        available = ['tesocr']
     return random.choice(available)
 
 

@@ -308,6 +308,6 @@ class Utils(object):
             p = subprocess.Popen(cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             out, _ = p.communicate()
             out_list = out.splitlines()
-            Utils.logger.debug("Output: {}".format(out))
+            Utils.logger.debug("Output: {}".format(out.decode().replace(r"\r\n", r"\n")))
 
         return p.returncode, out_list

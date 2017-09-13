@@ -16,7 +16,7 @@ from doconverter.DoconverterException import DoconverterException
 from doconverter.engines.Baseconverters import Baseconverters
 
 
-class Hpglview_raster(Baseconverters):
+class Tesseract_ocr(Baseconverters):
 
     def __init__(self, taskid, queue=None):
         Baseconverters.__init__(self, taskid=taskid, queue=queue)
@@ -36,26 +36,19 @@ class Hpglview_raster(Baseconverters):
 
         # EOS advertising the file but being not ready for working with it
         self.isfileready()
+
         # exe application
-        cmd.append(APPCONFIG['converters']['Hpglview_raster']['exe'])
-        if not os.path.exists(APPCONFIG['converters']['Hpglview_raster']['exe']):
+        cmd.append(APPCONFIG['converters']['Tesseract_ocr']['exe'])
+        if not os.path.exists(APPCONFIG['converters']['Tesseract_ocr']['exe']):
             raise DoconverterException('{} file is missing {}'
                                        .format(self.task.taskid,
                                                os.path.exists(
-                                                   APPCONFIG['converters']['Hpglview_raster']['exe'])))
+                                                   APPCONFIG['converters']['Tesseract_ocr']['exe'])))
 
         # arguments
-        exe_path = os.path.dirname(cmd[0])
-        cmd.append('-pdf')
-
-        if 'color' in self.hash_options.keys() and self.hash_options['color'].lower() == 'false':
-            cmd.append('{},{}'.format(os.path.join(self.task.fullocalpath, self.task.uploadedfile),
-                                      os.path.join(exe_path, 'pdf_bw.cfg')))
-        else:
-            cmd.append('{},{}'.format(os.path.join(self.task.fullocalpath, self.task.uploadedfile),
-                                      os.path.join(exe_path, 'pdf_colour.cfg')))
-
-        cmd.append(os.path.join(self.task.fullocalpath, self.task.newfilename))
+        cmd.append(os.path.join(self.task.fullocalpath, self.task.uploadedfile))
+        cmd.append(os.path.join(self.task.fullocalpath, self.task.newfilename.replace('.pdf', '')))
+        cmd.append('pdf')
         result, outlines = Utils.syscom(cmd, shell=True)
 
         return result

@@ -150,6 +150,8 @@ if __name__ == '__main__':
             if task == -666:
                 continue
             logger.debug('task being added %s', list_processes)
+            # This is another issue with EOS, likely due to problems at the SAMBA layer
+            job = None
             job = ConverterManager(str(task), server, list_processes, q)
             job.name = str(task)
             job.daemon = False

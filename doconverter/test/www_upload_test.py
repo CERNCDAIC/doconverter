@@ -167,7 +167,9 @@ def format_filename(file, number):
     regexc = re.compile('([\w-]*)\.(\w{2,4})', re.IGNORECASE)
     matched = regexc.match(filename)
     if matched.groups():
-        sequence = '{num:05d}'.format(num=number)
+        randome = os.urandom(24)
+        random.seed(randome)
+        sequence = '{num:09d}'.format(num=random.randint(0, 999999999))
         new_filename = 'file{0}.{1}'.format(sequence, matched.group(2))
         print('filename is: %s' % new_filename)
         shutil.copyfile(file, os.path.join(path, new_filename))

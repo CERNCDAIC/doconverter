@@ -63,8 +63,8 @@ class Utils(object):
         """Generate a taskid that should be unique among possible current running tasks"""
         Utils.__getlogging()
         Utils.logger.info('checking possible taskid')
-        # randome = os.urandom(24)
-        # random.seed(randome)
+        randome = os.urandom(24)
+        random.seed(randome)
         # taskid = random.randint(0, 999999999)
         taskid = round(time.time())
         while True:

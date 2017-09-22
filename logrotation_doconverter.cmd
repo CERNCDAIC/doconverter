@@ -7,7 +7,7 @@ REM	  3. Number of processes
 REM   4. Virtual environment if any.
 REM   5. Location of the py file to be executed. Passed now as a fixed string due to Schedule task limitations with number of characters
 REM	  Example:
-REM   %0 .\logrotation_doconverter.bat  c:\doconverter\logs\api.log DAY 2 doconverter
+REM   %0 .\logrotation_doconverter.cmd  c:\doconverter\logs\api.log DAY 2 doconverter
 
 
 REM Author: Ruben Gaspar rgaspar@cern.ch
@@ -104,7 +104,7 @@ set VAR=0
 echo %SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'" get ProcessID^, Commandline ^| %SystemRoot%\system32\findstr.exe /I /R /N /C:"%EXENOEXT% *%FILEARGUMENT%" ^| %SystemRoot%\system32\find.exe /i "%FILEARGUMENT%" /c >> %log%
 for /f  %%i in ('%SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'" get ProcessID^, Commandline ^| %SystemRoot%\system32\findstr.exe /I /R /N /C:"%EXENOEXT% *.*%FILEARGUMENT%" ^| %SystemRoot%\system32\find.exe /i "%FILEARGUMENT%" /c') do set VAR=%%i
 
-echo Number of matchesA is: %VAR%>>%log%
+echo Number of matches is: %VAR%>>%log%
 IF /I "%VAR%" GEQ "1" (
 	echo Already appA running>>%log%
 	if NOT EXIST %FULLNEWFILE% (

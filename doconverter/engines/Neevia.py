@@ -148,7 +148,6 @@ class Neevia(Baseconverters):
         NDocConverter.setParameter("DocumentOutputFolder", self.success_dir)
         NDocConverter.setParameter("JobOption", "printer")
 
-
         self.__submit_return_check(NDocConverter.SubmitFile(os.path.join(self.task.fullocalpath,
                                                                          self.task.uploadedfile), ''))
 

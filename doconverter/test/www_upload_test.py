@@ -53,14 +53,15 @@ def format_conversion(extension=None):
     if extension in ['png', 'jpg']:
         available.remove('pdfa')
     if extension in ['pdf', 'pdfa']:
+        #available = ['modiocr']
         available = ['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150',
-                     'toimg_200_200', 'toimg', 'toimg_400_400']
+                     'toimg_200_200', 'toimg', 'toimg_400_400', 'modiocr']
         # available = ['toimg_200_200', 'toimg', 'toimg_400_400']
         # available = ['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150' ]
     if extension in ['plt']:
         available = ['hpgl']
     if extension in ['tif']:
-        available = ['tesocr']
+        available = ['tesocr', 'modiocr']
     return random.choice(available)
 
 
@@ -116,6 +117,8 @@ def send_by_web(filename, dict):
             converter_options = "typeofimg=" + random.choice(['Jpeg', 'BMP', 'TiFF', 'PNG'])
     if converter_final.startswith('hpgl'):
         converter_options = "color=" + random.choice(['tRUe', 'falSe'])
+    if converter_final.startswith('modiocr'):
+        converter_options = "lang=" + random.choice(['english', 'french'])
     payload = {
         'converter': converter_final,
         'dirresponse': dict['diresponse'],

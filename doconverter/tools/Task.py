@@ -61,6 +61,8 @@ class Task(object):
                 self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'tif')
         elif converter.startswith('hpgl') or converter.startswith('tesocr'):
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
+        elif converter.startswith('modiocr'):
+            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
         else:
             self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], self.converter)
         logger.info('%s newfilename is %s' % (self.taskid, self.newfilename))

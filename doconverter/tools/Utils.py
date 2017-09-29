@@ -65,8 +65,7 @@ class Utils(object):
         Utils.logger.info('checking possible taskid')
         randome = os.urandom(24)
         random.seed(randome)
-        # taskid = random.randint(0, 999999999)
-        taskid = round(time.time())
+        taskid = round(time.time()) + random.randint(0, 99999)
         while True:
             Utils.logger.info('checking possible taskid %s', taskid)
             if not server:
@@ -76,7 +75,7 @@ class Utils(object):
                     and not os.path.isfile(os.path.join(APPCONFIG[server]['success'], str(taskid))) \
                     and not os.path.exists(os.path.join(APPCONFIG[server]['uploadsresults'], str(taskid))):
                         break
-            taskid = random.randint(0, 999999999)
+            taskid = round(time.time()) + random.randint(0, 99999)
         Utils.logger.info("new taskid generated %s" % taskid)
         return taskid
 
@@ -108,7 +107,8 @@ class Utils(object):
         :param dirpath:
         :return: an array of files ordered by ctime
         """
-        listoffiles = [s for s in os.listdir(dirpath) if os.path.isfile(os.path.join(dirpath, s))]
+        listoffiles = [s for s in os.listdir(dirpath)
+                       if os.path.isfile(os.path.join(dirpath, s)) and not s.startswith('.')]
         listoffiles.sort(key=lambda s: os.path.getctime(os.path.join(dirpath, s)))
         return listoffiles
 

@@ -118,6 +118,17 @@ class Neevia(Baseconverters):
                 imgconversion_ext = 'jpg'
             if imgconversion != 'TIFF':
                 expected_file = '{}1.{}'.format(self.task.uploadedfile.split('.')[0], imgconversion_ext)
+        elif self.task.converter.upper().startswith('MODIOCR'):
+            NDocConverter.setParserParameter("IMAGE/OCR", "OCR", "true")
+            if 'lang' in self.task.options.lower():
+                hash_options = Utils.convertohash(self.task.options.lower())
+                if hash_options['lang'].lower() == 'english':
+                    NDocConverter.setParserParameter("IMAGE/OCR", "OCRlang", 0)
+                if hash_options['lang'].lower() == 'french':
+                    NDocConverter.setParserParameter("IMAGE/OCR", "OCRlang", 5)
+            NDocConverter.setParameter("DocumentOutputFormat", "PDF")
+            Baseconverters.logger.debug('{} conversion from: {} towards {} ocr'
+                                        .format(self.task.taskid, self.task.extension, 'PDF'))
         else:
             NDocConverter.setParameter("DocumentOutputFormat", self.task.converter.upper())
             Baseconverters.logger.debug('{} conversion from: {} towards {}'

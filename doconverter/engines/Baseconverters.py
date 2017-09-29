@@ -31,6 +31,17 @@ class Baseconverters(object):
 
     def isfileready(self):
         # sleep randomly to reduce likelihood of -3 Invalid input folder error
+        if not os.path.exists(os.path.join(self.task.fullocalpath, self.task.uploadedfile)):
+            for x in range(0, 30):
+                if os.path.exists(os.path.join(self.task.fullocalpath, self.task.uploadedfile)):
+                    Baseconverters.logger.debug('{} file: {} already there!'.format(self.task.taskid,
+                        os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
+                    break
+                Baseconverters.logger.debug('{} file: {} not there. Wait for EOS sync'.format(self.task.taskid,
+                    os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
+                time.sleep(1)
+
+
         size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
         while True:
             time.sleep(1)

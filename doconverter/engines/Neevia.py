@@ -72,6 +72,8 @@ class Neevia(Baseconverters):
 
     def convert(self):
         Baseconverters.logger.debug('{} conversion started'.format(self.task.taskid))
+        # EOS advertising the file but being not ready for working with it
+        self.isfileready()
         if not os.path.isfile(os.path.join(self.task.fullocalpath, self.task.uploadedfile)):
             raise DoconverterException('{} file is missing {}'.format(self.task.taskid,
                                                                       os.path.join(self.task.fullocalpath,
@@ -146,8 +148,6 @@ class Neevia(Baseconverters):
         NDocConverter.setParameter("DocumentOutputFolder", self.success_dir)
         NDocConverter.setParameter("JobOption", "printer")
 
-        # EOS advertising the file but being not ready for working with it
-        self.isfileready()
 
         self.__submit_return_check(NDocConverter.SubmitFile(os.path.join(self.task.fullocalpath,
                                                                          self.task.uploadedfile), ''))

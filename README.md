@@ -32,7 +32,8 @@ c:\doconverter
 
 A sample of doconverter.ini and logging.conf can be found in the project.
 
-Possible setup on a Windows machine
+Possible setup on a Windows machine:
+
 ```
 # Activate appropiate environment
 workon doconverter

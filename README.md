@@ -1,7 +1,5 @@
 # CERN document conversion service
 
-## Aim
-
 The conversion service intends to automatically convert a number of application formats, input ones,
 to a different format, output ones, usually PDF or PDF/A though evolution of the service is always possible
 and more variety on terms of input and output file format could be possible. It's thought to do so asynchronously using
@@ -62,10 +60,10 @@ python .\engines\converter_daemon.py --n 2
 
 The project relies in several packages for conversion:
   - [Neevia DocPro converter](https://neevia.com/) a license is required, though a test software is available. Most
-  offimatic conversions are done using this software. It requires also that those applications be installed on the
-  server e.g. Miscrosoft Office, Open Office, Autocad, etc..
+  office like conversions are done using this software. It requires also that those applications be installed on the
+  server e.g. Microsoft Office, Open Office, Autocad, etc..
   - [Tesseract-OCR](https://github.com/tesseract-ocr/tesseract) it converts image files to a searchable PDF.
   - [SharepointDesigner 2007](https://www.microsoft.com/en-us/download/details.aspx?displaylang=en&id=21581) it converts
-   images and PDF files to a searchable PDF.
-  - [HPGL-Viwer](http://service-hpglview.web.cern.ch/service-hpglview/) it converts PLT files to PDF.
+   images and PDF files to a searchable PDF. It uses Neevia COM.
+  - [HPGL-Viewer](http://service-hpglview.web.cern.ch/service-hpglview/) it converts PLT files to PDF.
 

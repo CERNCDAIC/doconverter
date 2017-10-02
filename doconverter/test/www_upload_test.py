@@ -53,7 +53,7 @@ def format_conversion(extension=None):
     if extension in ['png', 'jpg']:
         available.remove('pdfa')
     if extension in ['pdf', 'pdfa']:
-        #available = ['modiocr']
+        # available = ['modiocr']
         available = ['thumb_200_200_150_150', 'thumb', 'thumb_400_400_150_150',
                      'toimg_200_200', 'toimg', 'toimg_400_400', 'modiocr']
         # available = ['toimg_200_200', 'toimg', 'toimg_400_400']

@@ -48,7 +48,7 @@ try:
     APPCONFIG['servers'] = [server, ]
 
     if CONFIG.has_section('default'):
-        if CONFIG.has_option('default','servers'):
+        if CONFIG.has_option('default', 'servers'):
             APPCONFIG['servers'] = CONFIG.get('default', 'servers').split(',')
         if CONFIG.has_option("default", "prefix_dir"):
             APPCONFIG["prefix_dir"] = CONFIG.get("default", "prefix_dir")
@@ -148,7 +148,6 @@ try:
             APPCONFIG['stopper'] = CONFIG.get('manager', 'stopper')
     else:
         logger.debug('Manager section is not defined. Strange!')
-
 
     if CONFIG.has_section('monitor'):
         if CONFIG.has_option('monitor', 'emails'):

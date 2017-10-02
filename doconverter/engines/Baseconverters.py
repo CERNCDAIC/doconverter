@@ -43,7 +43,6 @@ class Baseconverters(object):
                                                     os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
                 time.sleep(1)
 
-
         size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
         while True:
             time.sleep(1)

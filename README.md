@@ -1,5 +1,7 @@
 # CERN document conversion service
 
+[![Build Status](https://travis-ci.org/CERNCDAIC/doconverter.svg?branch=master)](https://travis-ci.org/CERNCDAIC/doconverter)
+
 The conversion service intends to automatically convert a number of application formats, input ones,
 to a different format, output ones, usually PDF or PDF/A though evolution of the service is always possible
 and more variety on terms of input and output file format could be possible. It's thought to do so asynchronously using

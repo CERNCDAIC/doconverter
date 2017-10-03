@@ -7,16 +7,15 @@ to a different format, output ones, usually PDF or PDF/A though evolution of the
 and more variety on terms of input and output file format could be possible. It's thought to do so asynchronously using
 a REST API.
 
-![stats.png](./img/stats.png)
+![stats.png](./docs/img/stats.png)
 
 ## Workflow and syntax
 
 The communication to the converter is done via a REST API with no authentication. The sequence is basically as:
 
-![workflow.png](./img/workflow.png)
+![workflow.png](./docs/img/workflow.png)
 
-T
-o create a new job:
+To create a new job:
 
 | Server | Type | Endpoint |
 | -- | -- | -- |
@@ -42,6 +41,7 @@ An example can be found within doconverter project functional test module, see [
 | PLT file | converter=hpgl | color=[true,false] | pdf file | N/A |
 | tif,png,jgp | converter=tesocr | N/A | pdf searchable file | It uses tesseract-ocr as engine that just support image files |
 | pdf, tif | converter=modiocr | language=[english,french] | pdf searchable file | N/A |
+
 ***imgresh,imgresv**: should be one of _'72x72','100x100','150x150','200x200','300x300','400x400','600x600','1200x1200'_
 ****imgresh,imgresv,imgheight,imgwidth**:should be one of _'72x72','100x100','150x150','200x200','300x300','400x400','600x600','1200x1200'_ and _imgheight_imgwidth_ should be an integer in pixels e.g.: thumb_200_200_150_150
 

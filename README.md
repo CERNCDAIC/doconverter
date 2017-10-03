@@ -15,12 +15,6 @@ The communication to the converter is done via a REST API with no authentication
 
 ![workflow.png](./docs/img/workflow.png)
 
-To create a new job:
-
-| Server | Type | Endpoint |
-| -- | -- | -- |
-| Prod | Upload file | https://doconverter.web.cern.ch/doconverter/api/v1.0/uploads |
-| Dev | Upload file| https://dev-doconverter.web.cern.ch/doconverter/api/v1.0/uploads |
 
 While a new document is uploaded to the doconverter server, several parameters need to be specified:
 
@@ -30,7 +24,6 @@ While a new document is uploaded to the doconverter server, several parameters n
 - **urlresponse**: callback that we will use to contact you e.g. https://mydomain.ch/api/receivefiles
 - **options**: special options depending on type of document conversion
 
-An example can be found within doconverter project functional test module, see [Github](https://github.com/CERNCDAIC/doconverter/blob/master/doconverter/test/www_upload_test.py)
 
 | Input File | Conversion output | Options | Expected result | Comments |
 | -- | -- | -- | -- | -- |
@@ -45,9 +38,7 @@ An example can be found within doconverter project functional test module, see [
 ***imgresh,imgresv**: should be one of _'72x72','100x100','150x150','200x200','300x300','400x400','600x600','1200x1200'_
 ****imgresh,imgresv,imgheight,imgwidth**:should be one of _'72x72','100x100','150x150','200x200','300x300','400x400','600x600','1200x1200'_ and _imgheight_imgwidth_ should be an integer in pixels e.g.: thumb_200_200_150_150
 
-**Callback**: receive your job results
-
-You should get a result of your submitted job, either a success in that case you get a file with the expected format or a error in that case you get an error message:
+As result of a submission, you should get a result of your submitted job, either a success in that case you get a file with the expected format or a error in that case you get an error message:
 
 - **directory**: where you would like to place your document
 - **status**: 1 if success, different number otherwise
@@ -55,7 +46,8 @@ You should get a result of your submitted job, either a success in that case you
 - **error_message**: in case of an error, an explanation why that happened
 - **content**: expected file coded in a multipart/form-data section
 
-You can check the test folder for examples.
+An example can be found within doconverter project functional test module, see [Github](https://github.com/CERNCDAIC/doconverter/blob/master/doconverter/test/www_upload_test.py)
+
 ## Architecture
 
 The two main components of the framework are a web fronted and worker nodes. Worker nodes are running on Windows as

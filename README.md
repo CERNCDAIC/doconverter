@@ -3,11 +3,10 @@
 [![Build Status](https://travis-ci.org/CERNCDAIC/doconverter.svg?branch=master)](https://travis-ci.org/CERNCDAIC/doconverter)
 
 The conversion service intends to automatically convert a number of application formats, input ones,
-to a different format, output ones, usually PDF or PDF/A though evolution of the service is always possible
-and more variety on terms of input and output file format could be possible. It's thought to do so asynchronously using
-a REST API.
+to a different format, output ones, usually PDF or PDF/A. Extension to provide more output/input formats is possible as
+adding new "converters" is part of the design. Conversions are done asynchronously using a REST API to communicate among
+actors.
 
-![stats.png](./docs/img/stats.png)
 
 ## Workflow and syntax
 
@@ -72,6 +71,7 @@ c:\doconverter
               \files
               \cert
               \doconverter
+              \testing
 ```
 
 A sample of doconverter.ini and logging.conf can be found in the project.

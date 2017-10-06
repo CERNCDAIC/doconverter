@@ -8,6 +8,9 @@
 # or submit itself to any jurisdiction.
 
 import logging
+from doconverter.tools.Utils import Utils
+from doconverter.config import APPCONFIG
+
 from flask_restful import Resource
 
 
@@ -16,7 +19,7 @@ class Stats(Resource):
 
     def __init__(self):
         ''' Method definition '''
-        Stats.logger = logging.getLogger('doconverter-web')
+        Stats.logger = logging.getLogger('doconverter-api')
 
     def get(self, report=0):
         Stats.logger.debug('Stats get: begin')
@@ -41,3 +44,7 @@ class Stats(Resource):
                                                                            tasks[0][1] - tasks[0][0])
             return {'report 3': 'Total tasks dealt in the last {} days'.format(days),
                     'result': message_info}, 200
+        elif report == 4:
+            total = Utils.totalpendingtasks(APPCONFIG['prefix_dir'], APPCONFIG['servers'])
+            return {'report 4': 'Total number of tasks pending on server(s): {}'.format(APPCONFIG['servers']),
+                    'result': total}, 200

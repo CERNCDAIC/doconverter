@@ -113,6 +113,19 @@ class Utils(object):
         return listoffiles
 
     @staticmethod
+    def totalpendingtasks(basedirpath, servers):
+        """Tasks folder to be verified
+
+        :param dirpath:
+        :return: an array of files ordered by ctime
+        """
+        total = 0
+        for s in servers:
+            dir = os.path.join(*[basedirpath, s, 'var', 'tasks'])
+            total += len(os.listdir(dir))
+        return total
+
+    @staticmethod
     def initlogger(queue=None):
         """
 

@@ -34,7 +34,7 @@ class Task(object):
             self.remotehost = remotehost
         else:
             self.remotehost = '0.0.0.0'
-        self.extension = self.uploadedfile.split('.')[1].lower()
+        self.extension = self.uploadedfile.split('.')[-1].lower()
         if not server:
             self.server = self.decidequeue(self.extension, self.converter)
         else:
@@ -49,22 +49,22 @@ class Task(object):
         else:
             self.options = ''
         if converter == 'pdfa':
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
+            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'pdf')
         elif converter.startswith('thumb'):
             # Neevia converter adds a number to each page of the document converted to PNG
-            self.newfilename = '{}1.png'.format(self.uploadedfile.split('.')[0])
+            self.newfilename = '{}1.png'.format(os.path.splitext(self.uploadedfile)[0])
         elif converter.startswith('toimg'):
             # Neevia converter adds a number to each page of the document converted to PNG, result will be compressed
             if 'tiff' not in self.options.lower():
                 self.newfilename = '{}.zip'.format(self.uploadedfile.split('.')[0])
             else:
-                self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'tif')
+                self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'tif')
         elif converter.startswith('hpgl') or converter.startswith('tesocr'):
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
+            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'pdf')
         elif converter.startswith('modiocr'):
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], 'pdf')
+            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'pdf')
         else:
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[1], self.converter)
+            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], self.converter)
         logger.info('%s newfilename is %s' % (self.taskid, self.newfilename))
         self.__createTask()
 

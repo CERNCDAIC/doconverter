@@ -133,7 +133,8 @@ def send_by_web(filename, dict):
         print("Unexpected error: %s", ex)
     finally:
         fin.close()
-        os.unlink(filename)
+        if 'keep' not in filename:
+            os.unlink(filename)
 
 
 def build_array_processes(iterations, POOLSIZE):
@@ -160,14 +161,17 @@ def build_array_processes(iterations, POOLSIZE):
     digest_pool.join()
 
 
-def format_filename(file, number):
+def format_filename(file):
     '''
 
     :param file:
     :return:
     '''
     (path, filename) = os.path.split(file)
-    regexc = re.compile('([\w-]*)\.(\w{2,4})', re.IGNORECASE)
+    if filename.startswith('keep'):
+        print('filename is: %s' % filename)
+        return file
+    regexc = re.compile('([\w-]*)\.(\w{2,4}$)', re.IGNORECASE)
     matched = regexc.match(filename)
     if matched.groups():
         randome = os.urandom(24)
@@ -189,7 +193,7 @@ def build_array_files(iteractions, nr_files):
     arr = []
     for x in range(0, iteractions):
         file = files[give_me_a_number(nr_files)]
-        newfile = format_filename(file, x)
+        newfile = format_filename(file)
         print('newfile is %s' % newfile)
         if newfile and os.path.exists(newfile):
             arr.append(newfile)

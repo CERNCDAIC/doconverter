@@ -30,7 +30,8 @@ def logger_init():
     q = multiprocessing.Queue()
     # this is the handler for all log records
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s"))
+    handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s",
+                         '%Y-%m-%dT%H:%M:%SZ'))
 
     queue_listener = QueueListener(q, handler)
     queue_listener.start()
@@ -127,6 +128,7 @@ if __name__ == '__main__':
         oldtime = datetime.today()
         tasks = Utils.sortfilesbytime(APPCONFIG[server]['tasks'])
         logger.debug('list of tasks %s', tasks)
+        logger.debug('pending tasks: {}'.format(len(tasks)))
         logger.debug('number of jobs %s', len(processes))
         if not tasks:
             time.sleep(timetosleep)

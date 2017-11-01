@@ -30,8 +30,10 @@ def logger_init():
     q = multiprocessing.Queue()
     # this is the handler for all log records
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter("[%(asctime)s %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s",
-                         '%Y-%m-%dT%H:%M:%SZ'))
+
+    fmt = logging.Formatter("[%(asctime)s %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s", '%Y-%m-%dT%H:%M:%S')
+    fmt.converter = time.gmtime
+    handler.setFormatter(fmt)
 
     queue_listener = QueueListener(q, handler)
     queue_listener.start()
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Processing of tasks')
     parser.add_argument('--n', action='store', type=int, dest='nprocesses', required=False, default=2,
                         help='number of documents to treat in parallel')
-    parser.add_argument('--t', action='store', type=int, dest='timetosleep', required=False, default=2,
+    parser.add_argument('--t', action='store', type=int, dest='timetosleep', required=False, default=10,
                         help='time to wait for new tasks in secs')
     parser.add_argument('--send', action='store', type=str, dest='sendtaskid', required=False, default=0,
                         help='Get the task information and try to send it, it is supposed it was properly converted')

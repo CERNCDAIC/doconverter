@@ -18,7 +18,6 @@ import os
 import platform
 from doconverter.DoconverterException import DoconverterException
 
-
 CONFIG = None
 APPCONFIG = {}
 

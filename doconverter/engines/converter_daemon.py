@@ -31,7 +31,7 @@ def logger_init():
     # this is the handler for all log records
     handler = logging.StreamHandler()
 
-    fmt = logging.Formatter("[%(asctime)s %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s", '%Y-%m-%dT%H:%M:%S')
+    fmt = logging.Formatter("[%(asctime)s %(filename)s:%(lineno)s - %(funcName)s() ] %(message)s", '%Y-%m-%d %H:%M:%S')
     fmt.converter = time.gmtime
     handler.setFormatter(fmt)
 

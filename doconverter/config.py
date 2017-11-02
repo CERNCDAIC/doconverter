@@ -9,6 +9,7 @@
 # or submit itself to any jurisdiction.
 
 import logging
+import time
 import logging.config
 import configparser
 import sys
@@ -35,6 +36,8 @@ server = platform.uname()[1]
 if server.find('.') != -1:
     server = server.split('.')[0]
 logging.config.dictConfig(config_logging)
+# Make UTC time
+logging.Formatter.converter = time.gmtime
 logger = logging.getLogger('doconverter-api')
 
 logger.debug("logger has been initialised")

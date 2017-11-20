@@ -101,7 +101,7 @@ echo fileargument: %FILEARGUMENT% Container: %CONTAINER%>>%log%
 
 echo "Checking for exe and argument">>%log%
 set VAR=0
-echo %SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'" get ProcessID^, Commandline ^| %SystemRoot%\system32\findstr.exe /I /R /N /C:"%EXENOEXT% *%FILEARGUMENT%" ^| %SystemRoot%\system32\find.exe /i "%FILEARGUMENT%" /c >> %log%
+echo %SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'" get ProcessID^, Commandline ^| %SystemRoot%\system32\findstr.exe /I /R /N /C:"%EXENOEXT% *.*%FILEARGUMENT%" ^| %SystemRoot%\system32\find.exe /i "%FILEARGUMENT%" /c >> %log%
 for /f  %%i in ('%SystemRoot%\system32\wbem\wmic.exe process where "name='%EXE%'" get ProcessID^, Commandline ^| %SystemRoot%\system32\findstr.exe /I /R /N /C:"%EXENOEXT% *.*%FILEARGUMENT%" ^| %SystemRoot%\system32\find.exe /i "%FILEARGUMENT%" /c') do set VAR=%%i
 
 echo Number of matches is: %VAR%>>%log%
@@ -110,9 +110,9 @@ IF /I "%VAR%" GEQ "1" (
 	if NOT EXIST %FULLNEWFILE% (
 		echo Stopping converter>>%log%
 		IF "M%CONTAINER%"=="M" (
-				start cmd /C "%EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+				start cmd /C "%EXE% %ARGUMENT% --s & timeout /t 120 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
 		) ELSE (
-				start cmd /C "%WITHCONTAINER% & %EXE% %ARGUMENT% --s & timeout /t 30 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
+				start cmd /C "%WITHCONTAINER% & %EXE% %ARGUMENT% --s & timeout /t 120 & ren %LOGFILE% %NEWFILE% & %EXE% %ARGUMENT% --r & %EXE% %ARGUMENT% --n %PROCESSES%"
 		)
 		echo Process dispatched>>%log%
 	) ELSE (

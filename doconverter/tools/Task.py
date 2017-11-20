@@ -232,4 +232,5 @@ class Task(object):
                 Utils.logmessage('{} success sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
 
         totalsecs = round(time.clock() - before)
-        Utils.logmessage('Sending file {} to {} took: {} secs'.format(pathtofile, self.urlresponse, totalsecs))
+        Utils.logmessage('{} sending file {} to {} took: {} secs'.format(self.taskid, pathtofile, self.urlresponse,
+                                                                         totalsecs))

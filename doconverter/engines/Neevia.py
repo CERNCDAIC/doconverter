@@ -170,7 +170,7 @@ class Neevia(Baseconverters):
                         return 0
                     time.sleep(1)
                 raise
-            except:
+            except:  # noqa
                 for x in range(0, 30):
                     if os.path.isfile(os.path.join(self.task.fullocalpath, expected_file)):
                         if '.zip' in self.task.newfilename:

@@ -54,7 +54,7 @@ class ReceivedFile(Resource):
                     return {'post': 'file was missing'}, 400
                 ReceivedFile.logger.debug('file has been saved: {}'.format(os.path.join(args.directory, filename)))
                 return {'post': 'file was uploaded'}, 200
-            except:
+            except: # noqa
                 import traceback
                 ReceivedFile.logger.debug('Exception got while receiving file {}'.format(traceback.print_exc()))
                 return {'post': 'Internal Error'}, 500

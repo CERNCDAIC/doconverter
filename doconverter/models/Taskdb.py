@@ -163,7 +163,7 @@ class TaskMapper(object):
         try:
             db.session.add(task)
             db.session.commit()
-        except:
+        except:  # noqa
             logging.getLogger('doconverter-api').debug(traceback.format_exc())
             db.session.rollback()
             return False
@@ -191,7 +191,7 @@ class TaskMapper(object):
             print(task)
             db.session.delete(task)
             db.session.commit()
-        except:
+        except:  # noqa
             logging.getLogger('doconverter-api').debug(traceback.format_exc())
             db.session.rollback()
             return False

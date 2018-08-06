@@ -216,21 +216,28 @@ class Task(object):
         }
         before = time.clock()
         if pathtofile and os.path.exists(pathtofile):
-            response = requests.post(self.urlresponse,
-                                     data=payload,
-                                     files={'content': open(pathtofile, 'rb')},
-                                     verify=False)
-            if response.status_code >= 300:
-                raise requests.RequestException('{} Unexpected response from server: {}'.format(self.taskid,
-                                                                                                response.text))
-                Utils.logmessage('{} result submitted to callback'.format(self.taskid))
-        else:
-            response = requests.post(self.urlresponse, data=payload, verify=APPCONFIG['ca_bundle'])
-            if response.status_code >= 300:
-                Utils.logmessage('{} error while sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
-            else:
-                Utils.logmessage('{} success sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
+            try:
+                response = requests.post(self.urlresponse,
+                                         data=payload,
+                                         files={'content': open(pathtofile, 'rb')},
+                                         verify=False)
 
+                if response.status_code >= 300:
+                    raise requests.RequestException('{} Unexpected response from server: {}'.format(self.taskid,
+                                                                                                    response.text))
+                    Utils.logmessage('{} result submitted to callback'.format(self.taskid))
+            except Exception as ex:
+                Utils.logmessage('Exception name is {} and exception: {}'
+                                 .format(ex.__module__ + "." + ex.__class__.__qualname__, ex))
+        else:
+            try:
+                response = requests.post(self.urlresponse, data=payload, verify=APPCONFIG['ca_bundle'])
+                if response.status_code >= 300:
+                    Utils.logmessage('{} error while sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
+                else:
+                    Utils.logmessage('{} success sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
+            except Exception as ex:
+                Utils.logmessage('Exception name is {} and exception: {}'.format(ex.__module__ + "." + ex.__class__.__qualname__, ex))
         totalsecs = round(time.clock() - before)
         Utils.logmessage('{} sending file {} to {} took: {} secs'.format(self.taskid, pathtofile, self.urlresponse,
                                                                          totalsecs))

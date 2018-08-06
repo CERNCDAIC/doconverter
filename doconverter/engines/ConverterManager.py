@@ -160,7 +160,6 @@ class ConverterManager(multiprocessing.Process):
                 logger.debug('Results for task {} were logged.'.format(self.task.taskid))
             else:
                 logger.debug('Problem logging task {} into DB'.format(self.task.taskid))
-
         finally:
             self.common_list.remove(int(self.task.taskid))
             self.common_list.append(-666)

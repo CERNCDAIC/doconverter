@@ -3,6 +3,6 @@ flask
 flask-restful
 psutil
 Flask-SQLAlchemy==2.1
-psycopg2==2.6.2
+psycopg2==2.7
 sphinx
 gunicorn

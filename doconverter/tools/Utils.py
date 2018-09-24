@@ -108,7 +108,9 @@ class Utils(object):
         :return: an array of files ordered by ctime
         """
         listoffiles = [s for s in os.listdir(dirpath)
-                       if os.path.isfile(os.path.join(dirpath, s)) and not s.startswith('.')]
+                       if (os.path.isfile(os.path.join(dirpath, s))
+                           and not s.startswith('.')
+                           and os.path.getsize(os.path.join(dirpath, s)) > 0)]
         listoffiles.sort(key=lambda s: os.path.getctime(os.path.join(dirpath, s)))
         return listoffiles
 

@@ -48,8 +48,10 @@ class Task(object):
             self.options = options
         else:
             self.options = ''
+
+        partsoffilename = self.uploadedfile.split('.')
         if converter == 'pdfa':
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'pdf')
+            self.newfilename = '.'.join(partsoffilename[:-1]) + '.pdf'
         elif converter.startswith('thumb'):
             # Neevia converter adds a number to each page of the document converted to PNG
             self.newfilename = '{}1.png'.format(os.path.splitext(self.uploadedfile)[0])
@@ -58,13 +60,13 @@ class Task(object):
             if 'tiff' not in self.options.lower():
                 self.newfilename = '{}.zip'.format(self.uploadedfile.split('.')[0])
             else:
-                self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'tif')
+                self.newfilename = '.'.join(partsoffilename[:-1]) + '.tif'
         elif converter.startswith('hpgl') or converter.startswith('tesocr'):
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'pdf')
+            self.newfilename = '.'.join(partsoffilename[:-1]) + '.pdf'
         elif converter.startswith('modiocr'):
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], 'pdf')
+            self.newfilename = '.'.join(partsoffilename[:-1]) + '.pdf'
         else:
-            self.newfilename = self.uploadedfile.replace(self.uploadedfile.split('.')[-1], self.converter)
+            self.newfilename = '.'.join(partsoffilename[:-1]) + '.' + self.converter
         logger.info('%s newfilename is %s' % (self.taskid, self.newfilename))
         self.__createTask()
 

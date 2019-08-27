@@ -139,7 +139,7 @@ def send_by_web(filename, dict):
 
 def build_array_processes(iterations, POOLSIZE):
     '''
-
+    Comment
     :param iterations:
     :param POOLSIZE:
     :return:

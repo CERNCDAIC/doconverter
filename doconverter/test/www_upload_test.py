@@ -47,7 +47,7 @@ def format_conversion(extension=None):
     :param: extension of the file to be converted e.g. htm
     :return: one of the predefined types
     '''
-    available = ['pdf', 'pdfa', 'ps']
+    available = ['pdf','pdfa','ps']
     if extension in ['html', 'png', 'jpg']:
         available.remove('ps')
     if extension in ['png', 'jpg']:
@@ -109,7 +109,7 @@ def send_by_web(filename, dict):
         if random.choice([0, 1]):
             converter_options = 'hidedocumentrevisions=true'
         else:
-            converter_options = 'hidehocumentrevisions=false'
+            converter_options = 'hidedocumentrevisions=false'
     if converter_final.startswith('toimg'):
         if converter_options:
             converter_options = converter_options + ":typeofimg=" + random.choice(['jpeg', 'BMP', 'tiff', 'PNG'])

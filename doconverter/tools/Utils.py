@@ -167,22 +167,32 @@ class Utils(object):
         :param exe: executable in case of need, avoid false positive like an editor that has open the file
         :return: number of instances found in the process space
         """
+
         counter = 0
         for process in psutil.process_iter():
             try:
                 for item in process.cmdline():
                     if pythonfile in item:
+                        print("py file {} - {}".format(pythonfile, item))
                         if exe:
                             if exe in process.cmdline()[0]:
+                                print("exe is {}".format(process.cmdline()[0]))
+                                print(process.pid)
+                                print(process.ppid())
                                 counter += 1
                                 break
                         else:
+                            print(process.pid)
+                            print(process.ppid())
                             counter += 1
                             break
             except psutil.AccessDenied:
                 pass
         Utils.__getlogging()
-        Utils.logger.debug('{} found: {} times'.format(pythonfile, counter))
+        if exe:
+            Utils.logger.debug('py file: {} and exe: {} found: {} times'.format(pythonfile, exe, counter))    
+        else:
+            Utils.logger.debug('py file: {} found: {} times'.format(pythonfile, counter))    
         return counter
 
     @staticmethod

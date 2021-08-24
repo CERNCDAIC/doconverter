@@ -216,7 +216,7 @@ class Task(object):
             'filename': self.newfilename,
             'error_message': status
         }
-        before = time.clock()
+        before = time.time()
         if pathtofile and os.path.exists(pathtofile):
             try:
                 response = requests.post(self.urlresponse,
@@ -240,6 +240,6 @@ class Task(object):
                     Utils.logmessage('{} success sending file {} to {}'.format(self.taskid, pathtofile, self.urlresponse))
             except Exception as ex:
                 Utils.logmessage('Exception name is {} and exception: {}'.format(ex.__module__ + "." + ex.__class__.__qualname__, ex))
-        totalsecs = round(time.clock() - before)
+        totalsecs = round(time.time() - before)
         Utils.logmessage('{} sending file {} to {} took: {} secs'.format(self.taskid, pathtofile, self.urlresponse,
                                                                          totalsecs))

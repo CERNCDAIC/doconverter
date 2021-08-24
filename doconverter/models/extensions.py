@@ -8,12 +8,14 @@
 # granted to it by virtue of its status as Intergovernmental Organization
 # or submit itself to any jurisdiction.
 
-from doconverter.api.handlers import app
+from doconverter.api.handlers import db
 from flask_sqlalchemy import SQLAlchemy
 from doconverter.config import APPCONFIG
 
+app = get_app()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = APPCONFIG['SQLALCHEMY_DATABASE_URI']
 app.config['SQLALCHEMY_POOL_SIZE'] = 20
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 1
-db = SQLAlchemy(app)
+db = SQLAlchemy()
+

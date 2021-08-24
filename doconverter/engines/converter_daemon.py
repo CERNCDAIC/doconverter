@@ -112,7 +112,7 @@ if __name__ == '__main__':
             task.sendbyweb(task.convertedfile_exists(), 0)
         sys.exit(0)
     # check if we are alone
-    if Utils.isprocess_running(os.path.basename(sys.argv[0]), os.path.basename(sys.executable).split('.')[0]) > 1:
+    if Utils.isprocess_running(os.path.basename(sys.argv[0]), os.path.basename(sys.executable).split('.')[0]) > 2:
         logger.debug('A converter is already running!')
         print(os.path.basename(sys.argv[0]))
         sys.exit(0)

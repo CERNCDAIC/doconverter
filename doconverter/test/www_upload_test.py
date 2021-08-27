@@ -61,7 +61,7 @@ def format_conversion(extension=None):
     if extension in ['plt']:
         available = ['hpgl']
     if extension in ['tif']:
-        available = ['tesocr', 'modiocr']
+        available = ['modiocr','tesocr'] 
     return random.choice(available)
 
 
@@ -127,6 +127,7 @@ def send_by_web(filename, dict):
     }
     print(payload)
     try:
+        print(APPCONFIG['ca_bundle'])
         r = requests.post(dict['url'], files=file, data=payload, verify=APPCONFIG['ca_bundle'])
         print(r.text)
     except Exception as ex:

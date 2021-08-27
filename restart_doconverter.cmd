@@ -25,7 +25,7 @@ IF "M%PROCESSES%"=="M" (
 
 IF "M%CONTAINER%"=="M" (
 	echo "%CONTAINER% not provided"
-) ELSE set WITHCONTAINER=workon %CONTAINER%
+) ELSE set WITHCONTAINER=c:\doconverter\doconverter\venv\Scripts\activate
 
 IF "M%CONTAINER%"=="M" (
 	start cmd /C "%EXE% %ARGUMENT% --n %PROCESSES%"

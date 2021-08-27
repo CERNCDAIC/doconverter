@@ -173,17 +173,11 @@ class Utils(object):
             try:
                 for item in process.cmdline():
                     if pythonfile in item:
-                        print("py file {} - {}".format(pythonfile, item))
                         if exe:
                             if exe in process.cmdline()[0]:
-                                print("exe is {}".format(process.cmdline()[0]))
-                                print(process.pid)
-                                print(process.ppid())
                                 counter += 1
                                 break
                         else:
-                            print(process.pid)
-                            print(process.ppid())
                             counter += 1
                             break
             except psutil.AccessDenied:

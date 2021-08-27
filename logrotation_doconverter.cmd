@@ -60,7 +60,7 @@ IF NOT EXIST %ARGUMENT% (
 )
 IF "M%CONTAINER%"=="M" (
 	echo "%CONTAINER% not provided"
-) ELSE set WITHCONTAINER=workon %CONTAINER%
+) ELSE set WITHCONTAINER=c:\doconverter\doconverter\venv\Scripts\activate
 
 :: create a log file named [script].YYYYMMDDHHMMSS.txt
 :: Create the date and time elements. Locale independent

@@ -49,6 +49,7 @@ class Tesseract_ocr(Baseconverters):
         cmd.append(os.path.join(self.task.fullocalpath, self.task.uploadedfile))
         cmd.append(os.path.join(self.task.fullocalpath, self.task.newfilename.replace('.pdf', '')))
         cmd.append('pdf')
+   
         result, outlines = Utils.syscom(cmd, shell=True)
 
         return result

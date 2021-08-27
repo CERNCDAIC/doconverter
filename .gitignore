@@ -1,0 +1,4 @@
+.vs/
+dist/
+__pycache__/
+doconverter.egg-info/

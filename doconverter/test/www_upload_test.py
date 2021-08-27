@@ -47,7 +47,7 @@ def format_conversion(extension=None):
     :param: extension of the file to be converted e.g. htm
     :return: one of the predefined types
     '''
-    available = ['pdf','pdfa','ps']
+    available = ['pdf', 'pdfa', 'ps']
     if extension in ['html', 'png', 'jpg']:
         available.remove('ps')
     if extension in ['png', 'jpg']:
@@ -61,7 +61,7 @@ def format_conversion(extension=None):
     if extension in ['plt']:
         available = ['hpgl']
     if extension in ['tif']:
-        available = ['tesocr', 'modiocr']
+        available = ['modiocr', 'tesocr']
     return random.choice(available)
 
 
@@ -127,6 +127,7 @@ def send_by_web(filename, dict):
     }
     print(payload)
     try:
+        print(APPCONFIG['ca_bundle'])
         r = requests.post(dict['url'], files=file, data=payload, verify=APPCONFIG['ca_bundle'])
         print(r.text)
     except Exception as ex:
@@ -171,7 +172,7 @@ def format_filename(file):
     if filename.startswith('keep'):
         print('filename is: %s' % filename)
         return file
-    regexc = re.compile('([\w-]*)\.(\w{2,4}$)', re.IGNORECASE)
+    regexc = re.compile(r'([\w-]*)\.(\w{2,4}$)', re.IGNORECASE)
     matched = regexc.match(filename)
     if matched.groups():
         randome = os.urandom(24)

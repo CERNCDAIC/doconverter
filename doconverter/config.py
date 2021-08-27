@@ -27,8 +27,8 @@ if os.name == 'posix':
     FILELOGS = '/etc/doconverter/logging.conf'
     FILEINI = '/etc/doconverter/doconverter.ini'
 else:
-    FILELOGS = 'c:\doconverter\config\logging.conf'
-    FILEINI = 'c:\doconverter\config\doconverter.ini'
+    FILELOGS = r'c:\doconverter\config\logging.conf'
+    FILEINI = r'c:\doconverter\config\doconverter.ini'
 with open(FILELOGS) as jdata:
     config_logging = json.load(jdata)
 

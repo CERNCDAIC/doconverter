@@ -14,6 +14,8 @@ from doconverter.api.UploadFile import UploadFile
 from doconverter.api.ReceivedFile import ReceivedFile
 from doconverter.api.MonitorWWW import MonitorWWW
 from doconverter.api.Stats import Stats
+from flask_sqlalchemy import SQLAlchemy
+from doconverter.config import APPCONFIG
 
 
 app = Flask(__name__)
@@ -24,8 +26,11 @@ app.config['MAX_CONTENT_LENGTH'] = 2000 * 1024 * 1024
 api = Api(app)
 
 
-def get_app():
-    return app
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = APPCONFIG['SQLALCHEMY_DATABASE_URI']
+app.config['SQLALCHEMY_POOL_SIZE'] = 20
+app.config['SQLALCHEMY_POOL_RECYCLE'] = 1
+db = SQLAlchemy(app)
 
 
 @app.route('/')

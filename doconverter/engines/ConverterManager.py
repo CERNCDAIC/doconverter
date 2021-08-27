@@ -63,9 +63,9 @@ class ConverterManager(multiprocessing.Process):
                 raise DoconverterException("{} from {} using converter {} no converter defined."
                                            .format(self.task.taskid, self.task.extension, self.task.converter))
             converter = self.converter_class(taskid=self.task.taskid, queue=self.queue)
-            before = time.clock()
+            before = time.time()
             status = converter.convert()
-            after = time.clock()
+            after = time.time()
             if status == 0:
                 self.task.movetosuccess()
                 totalsecs = round(after - before)

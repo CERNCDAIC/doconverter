@@ -12,7 +12,7 @@ import logging
 from sqlalchemy.orm.exc import NoResultFound
 from doconverter.tools.Utils import Utils
 from datetime import datetime, timedelta
-from doconverter.models.extensions import db
+from doconverter.api.handlers import db
 from sqlalchemy.dialects.postgresql import INET
 from doconverter.models.Taskdb import Taskdb  # noqa
 

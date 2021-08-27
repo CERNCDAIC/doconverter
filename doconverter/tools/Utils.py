@@ -74,7 +74,7 @@ class Utils(object):
                     and not os.path.isfile(os.path.join(APPCONFIG[server]['error'], str(taskid))) \
                     and not os.path.isfile(os.path.join(APPCONFIG[server]['success'], str(taskid))) \
                     and not os.path.exists(os.path.join(APPCONFIG[server]['uploadsresults'], str(taskid))):
-                        break
+                break
             taskid = round(time.time()) + random.randint(0, 99999)
         Utils.logger.info("new taskid generated %s" % taskid)
         return taskid
@@ -184,9 +184,9 @@ class Utils(object):
                 pass
         Utils.__getlogging()
         if exe:
-            Utils.logger.debug('py file: {} and exe: {} found: {} times'.format(pythonfile, exe, counter))    
+            Utils.logger.debug('py file: {} and exe: {} found: {} times'.format(pythonfile, exe, counter))
         else:
-            Utils.logger.debug('py file: {} found: {} times'.format(pythonfile, counter))    
+            Utils.logger.debug('py file: {} found: {} times'.format(pythonfile, counter))
         return counter
 
     @staticmethod

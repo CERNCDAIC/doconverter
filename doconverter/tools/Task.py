@@ -147,9 +147,8 @@ class Task(object):
         """
         possibles = []
         for server in APPCONFIG['servers']:
-            if fromext in APPCONFIG[server]['extensions_allowed'] and \
-                    converter.split('_')[0] in APPCONFIG[server]['extensions_allowed']:
-                    possibles.append(server)
+            if fromext in APPCONFIG[server]['extensions_allowed'] and converter.split('_')[0] in APPCONFIG[server]['extensions_allowed']:
+                possibles.append(server)
         return random.choice(possibles)
 
     def movetosuccess(self):
@@ -165,7 +164,7 @@ class Task(object):
                                                          os.path.join(APPCONFIG[self.server]['success'], self.taskid)),
                              self.queue)
         else:
-            Utils.logmessage('task file %s doesnt exist, strange!'
+            Utils.logmessage('task file {} doesnt exist, strange!'
                              .format(os.path.join(APPCONFIG[self.server]['tasks'], self.taskid)),
                              self.queue)
             return False
@@ -186,7 +185,7 @@ class Task(object):
                                                                            self.taskid)),
                              self.queue)
         else:
-            Utils.logmessage('task file %s doesnt exist, strange!'.format(
+            Utils.logmessage('task file {} doesnt exist, strange!'.format(
                 os.path.join(APPCONFIG[self.server]['tasks'], self.taskid)),
                              self.taskid)
             return False

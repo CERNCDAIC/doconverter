@@ -26,7 +26,7 @@ While a new document is uploaded to the doconverter server, several parameters n
 
 | Input File | Conversion output | Options | Expected result | Comments |
 | -- | -- | -- | -- | -- |
-| Office 2016, Autocad(cdx), OpenOffice, Coreldraw(cdr),rtf,htm,bmp,jpg,tif | converter=[pdf,dfa,ps] | N/A | pdf file | N/A |
+| Office 2019, Autocad(cdx), OpenOffice, Coreldraw(cdr),rtf,htm,bmp,jpg,tif | converter=[pdf,dfa,ps] | N/A | pdf file | N/A |
 | Special case for Word documents(e.g. doc,docx) | converter=[pdf,pdfa] | hidedocumentrevisions=[false,true] |pdf file | You may want to have comments visible on your pdf, by default they are not|
 | PDF file | converter=toimg | typeofimg=[jpeg,bmp,tiff,png]:imgresh=200:imgresv=200* | zip or tif file | Depending on the format of file chosen a tif file or zip file containing all the numbered pages of the document will be sent back. E.g. original file mypresentation.pdf -> zip: mypresentation.zip or tif: mypresentation.tif |
 | PDF file | converter=thumb | imgresh=200:imgresv=200:imgheight=300:imgwidth=300** | png file| if original file was called mydocument.pdf -> mydocument1.png |

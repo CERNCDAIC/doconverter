@@ -167,7 +167,6 @@ class Utils(object):
         :param exe: executable in case of need, avoid false positive like an editor that has open the file
         :return: number of instances found in the process space
         """
-
         counter = 0
         for process in psutil.process_iter():
             try:

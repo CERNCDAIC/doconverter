@@ -167,17 +167,20 @@ class Utils(object):
         :param exe: executable in case of need, avoid false positive like an editor that has open the file
         :return: number of instances found in the process space
         """
-
+        print('python file {} exe {}'.format(pythonfile, exe))
         counter = 0
         for process in psutil.process_iter():
             try:
                 for item in process.cmdline():
                     if pythonfile in item:
+                        print("AAA {}".format(item))
                         if exe:
                             if exe in process.cmdline()[0]:
+                                print("BBB {} - pid {}".format(process.cmdline(), process.pid))
                                 counter += 1
                                 break
                         else:
+                            print("CCC {}".format(item))
                             counter += 1
                             break
             except psutil.AccessDenied:

@@ -44,6 +44,7 @@ class Baseconverters(object):
                 time.sleep(1)
 
         size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
+
         while True:
             time.sleep(1)
             if os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size > size_file:
@@ -52,11 +53,13 @@ class Baseconverters(object):
                 Baseconverters.logger.debug('file: {} still being copied size is {} bytes'.format(
                     os.path.join(self.task.fullocalpath, self.task.uploadedfile),
                     size_file))
-            elif os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size == size_file:
+            elif os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size == size_file and size_file != 0:
                 Baseconverters.logger.debug('file: {} got stationary size: {} bytes'.format(
                     os.path.join(self.task.fullocalpath, self.task.uploadedfile),
                     size_file))
                 break
+            elif size_file == 0:
+                Baseconverters.logger.debug('file size {} is 0, weird!'.format(os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
             else:
                 Baseconverters.logger.debug('file: {} must have been fully copied, leaving loop'.format(
                     os.path.join(self.task.fullocalpath, self.task.uploadedfile)))

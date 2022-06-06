@@ -67,7 +67,7 @@ class Neevia(Baseconverters):
             }
         error = retvals.get(retval, '%s Undocumented Return Value')
         if error is not None:
-            Baseconverters.logger.debug('{} submitting file issue1 <{}>'.format(self.task.taskid, error))
+            Baseconverters.logger.debug('{} submitting file issue <{}>'.format(self.task.taskid, error))
         return retval
 
     def convert(self):

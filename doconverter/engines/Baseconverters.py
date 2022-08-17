@@ -45,7 +45,8 @@ class Baseconverters(object):
 
         size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
 
-        while True:
+        # Wait five minutes to see if the file gest stable, after you consider it's null
+        for x in range(0, 300):
             time.sleep(1)
             if os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size > size_file:
                 size_file = os.stat(os.path.join(self.task.fullocalpath, self.task.uploadedfile)).st_size
@@ -58,6 +59,9 @@ class Baseconverters(object):
                     os.path.join(self.task.fullocalpath, self.task.uploadedfile),
                     size_file))
                 break
+            elif size_file==0 and x==179:
+                Baseconverters.logger.debug('file size {} is 0, leaving look'.format(os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
+                return False
             elif size_file == 0:
                 Baseconverters.logger.debug('file size {} is 0, weird!'.format(os.path.join(self.task.fullocalpath, self.task.uploadedfile)))
             else:

@@ -5,7 +5,6 @@ certifi==2021.10.8
 charset-normalizer==2.0.10
 click==8.0.3
 configparser==5.2.0
-doconverter==0.1.0
 docutils==0.17.1
 Flask==2.0.2
 Flask-RESTful==0.3.9
